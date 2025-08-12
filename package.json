@@ -9,19 +9,34 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/multer": "^2.0.0",
+    "anthropic": "^0.0.0",
+    "bcryptjs": "^3.0.2",
+    "docx": "^9.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.10.0",
+    "multer": "^2.0.2",
+    "mysql2": "^3.14.3",
+    "next": "15.4.6",
+    "pdf-parse": "^1.1.1",
+    "pdf2pic": "^3.2.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
-    "@eslint/eslintrc": "^3"
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5"
   }
 }
