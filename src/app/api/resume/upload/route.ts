@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database/connection';
 import { ResumeData, WorkExperience } from '@/types/resume';
 import mammoth from 'mammoth';
+import pdfParse from 'pdf-parse';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,6 +34,9 @@ export async function POST(request: NextRequest) {
     // Check if file type is in allowed types OR if file extension is allowed
     const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
     const isValidType = allowedTypes.includes(file.type) || allowedExtensions.includes(fileExtension);
+    
+    console.log('File extension:', fileExtension);
+    console.log('Is valid type:', isValidType);
     
     if (!isValidType) {
       return NextResponse.json(
@@ -140,12 +144,22 @@ function parseResumeText(text: string): Partial<ResumeData> {
     skills: []
   };
 
-  // Extract name (usually the first prominent line)
-  if (lines.length > 0) {
-    const firstLine = lines[0].trim();
-    // Check if it looks like a name (contains letters, not too long, no special chars)
-    if (firstLine.length > 2 && firstLine.length < 50 && /^[a-zA-Z\s]+$/.test(firstLine)) {
-      parsedData.personal!.fullName = firstLine;
+  // Enhanced name extraction - look for first line that looks like a name
+  for (let i = 0; i < Math.min(lines.length, 5); i++) {
+    const line = lines[i].trim();
+    // Check if it looks like a name: alphabetic chars, spaces, hyphens, and common name patterns
+    if (line.length >= 3 && line.length <= 50 && 
+        /^[A-Za-z][A-Za-z\s\-\'\.]+[A-Za-z]$/.test(line) &&
+        !line.toLowerCase().includes('resume') && 
+        !line.toLowerCase().includes('cv') &&
+        !line.toLowerCase().includes('curriculum') &&
+        !line.includes('@') && !line.includes('phone') && !line.includes('email')) {
+      // Additional check: should have at least 2 words for first and last name
+      const words = line.split(/\s+/);
+      if (words.length >= 2 && words.length <= 4) {
+        parsedData.personal!.fullName = line;
+        break;
+      }
     }
   }
 
@@ -170,27 +184,43 @@ function parseResumeText(text: string): Partial<ResumeData> {
     }
   }
 
-  // Extract LinkedIn
-  const linkedinMatch = text.match(/(?:linkedin\.com\/in\/|linkedin:?\s*)([a-zA-Z0-9-]+)/i);
-  if (linkedinMatch) {
-    parsedData.personal!.linkedin = `https://linkedin.com/in/${linkedinMatch[1]}`;
-  } else {
-    // Try alternative LinkedIn patterns
-    const altLinkedinMatch = text.match(/linkedin:?\s*(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/([a-zA-Z0-9-]+)/i);
-    if (altLinkedinMatch) {
-      parsedData.personal!.linkedin = `https://linkedin.com/in/${altLinkedinMatch[1]}`;
-    } else {
-      // Try simple LinkedIn: username format
-      const simpleLinkedinMatch = text.match(/linkedin:\s*([a-zA-Z0-9-]+)/i);
-      if (simpleLinkedinMatch) {
-        parsedData.personal!.linkedin = `https://linkedin.com/in/${simpleLinkedinMatch[1]}`;
-      } else {
-        // Try to extract from the specific format in the test file
-        const testLinkedinMatch = text.match(/linkedin:\s*linkedin\.com\/in\/([a-zA-Z0-9-]+)/i);
-        if (testLinkedinMatch) {
-          parsedData.personal!.linkedin = `https://linkedin.com/in/${testLinkedinMatch[1]}`;
-        }
+  // Enhanced LinkedIn extraction
+  const linkedinPatterns = [
+    /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/([a-zA-Z0-9-_]+)/i,
+    /linkedin:\s*(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/([a-zA-Z0-9-_]+)/i,
+    /linkedin:\s*linkedin\.com\/in\/([a-zA-Z0-9-_]+)/i,
+    /linkedin\.com\/in\/([a-zA-Z0-9-_]+)/i,
+    /linkedin:\s*([a-zA-Z0-9-_]+)(?!\@)/i  // Simple format but not email
+  ];
+  
+  for (const pattern of linkedinPatterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      // Validate username (not too short, not an email)
+      const username = match[1];
+      if (username.length >= 3 && !username.includes('@') && !username.includes('.com')) {
+        parsedData.personal!.linkedin = `https://linkedin.com/in/${username}`;
+        break;
       }
+    }
+  }
+  
+  // Extract portfolio/website
+  const portfolioPatterns = [
+    /(?:portfolio|website):\s*(https?:\/\/[^\s]+)/i,
+    /(?:portfolio|website):\s*([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i,
+    /(https?:\/\/(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g
+  ];
+  
+  for (const pattern of portfolioPatterns) {
+    const match = text.match(pattern);
+    if (match && match[1] && !match[1].includes('linkedin')) {
+      let url = match[1];
+      if (!url.startsWith('http')) {
+        url = 'https://' + url;
+      }
+      parsedData.personal!.portfolio = url;
+      break;
     }
   }
 
@@ -339,49 +369,120 @@ function parseResumeText(text: string): Partial<ResumeData> {
 
 function extractExperienceSections(text: string): WorkExperience[] {
   const experiences: WorkExperience[] = [];
+  const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
   
-  // Split text into sections
-  const sections = text.split(/\n\s*\n/);
+  // Enhanced job title patterns
+  const jobTitlePatterns = [
+    /(Senior|Junior|Lead|Principal|Staff|Chief|Head of|Director of|Vice President|VP|Manager|Assistant|Associate)?\s*(Software Engineer|Developer|Programmer|Analyst|Manager|Director|Consultant|Designer|Architect|Cook|Server|Cashier|Assistant|Coordinator|Specialist|Administrator|Technician|Representative|Sales|Marketing|Engineer|Accountant|Teacher|Nurse|Doctor|Lawyer|Writer|Editor|Artist|Photographer|Chef|Waiter|Bartender|Cleaner|Security|Guard)/i,
+    /^[A-Z][a-zA-Z\s]+(Engineer|Developer|Manager|Director|Analyst|Consultant|Specialist|Coordinator|Assistant|Representative|Technician|Administrator)$/,
+  ];
   
-  // Look for experience-related sections
-  const experienceKeywords = ['experience', 'work history', 'employment', 'professional experience', 'career'];
+  // Enhanced company patterns
+  const companyPatterns = [
+    /([A-Z][a-zA-Z0-9\s&\-']+(?:Inc|Corp|LLC|Ltd|Limited|Company|Co\.|Technologies|Tech|Solutions|Services|Group|Associates|Partners|Consulting|Restaurant|Store|Hospital|Medical|School|University|College|Cinema|Theater|Bank|Financial|Insurance))/i,
+    /(American Multi-Cinema|AMC|McDonald's|Starbucks|Walmart|Target|Amazon|Google|Microsoft|Apple|Facebook|Meta)/i,
+  ];
   
-  for (const section of sections) {
-    const lowerSection = section.toLowerCase();
+  // Enhanced date patterns
+  const datePatterns = [
+    /(\d{1,2}\/\d{4}|\d{4})\s*[-–—]\s*(present|current|\d{1,2}\/\d{4}|\d{4})/i,
+    /(\w+\s+\d{4})\s*[-–—]\s*(present|current|\w+\s+\d{4})/i,
+  ];
+  
+  let currentExperience: Partial<WorkExperience> | null = null;
+  let inExperienceSection = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lowerLine = line.toLowerCase();
     
-    // Check if this section contains experience-related keywords
-    const isExperienceSection = experienceKeywords.some(keyword => 
-      lowerSection.includes(keyword)
-    );
+    // Check if we're entering an experience section
+    if (/^(professional\s+)?experience|work\s+history|employment|career/i.test(line)) {
+      inExperienceSection = true;
+      continue;
+    }
     
-    if (isExperienceSection || lowerSection.includes('at ') || lowerSection.includes('company')) {
-      // Try to extract job information
-      const jobTitleMatch = section.match(/(senior|junior|lead|principal|staff)?\s*(software engineer|developer|programmer|analyst|manager|director|consultant|designer|architect|cook|server|cashier|assistant|coordinator|specialist)/i);
-      const companyMatch = section.match(/(?:at|with|for)\s+([A-Z][a-zA-Z0-9\s&]+(?:Inc|Corp|LLC|Ltd|Company|Technologies|Solutions|Restaurant|Store|Hospital|School))/i);
-      const dateMatch = section.match(/(\d{4})\s*[-–]\s*(present|current|\d{4})/i);
-      
-      // Also try to extract company name from bullet points or job titles
-      const bulletCompanyMatch = section.match(/([A-Z][a-zA-Z0-9\s&]+(?:Inc|Corp|LLC|Ltd|Company|Technologies|Solutions|Restaurant|Store|Hospital|School|AMC|Cinema|Multi-Cinema))/i);
-      
-      if (jobTitleMatch || companyMatch || bulletCompanyMatch) {
-        const companyName = companyMatch ? companyMatch[1].trim() : 
-                           bulletCompanyMatch ? bulletCompanyMatch[1].trim() : 
-                           'Company name to be specified';
+    // Check if we're leaving experience section
+    if (inExperienceSection && /^(education|skills|certifications|projects)/i.test(line)) {
+      inExperienceSection = false;
+      if (currentExperience && currentExperience.companyName && currentExperience.jobTitle) {
+        experiences.push(currentExperience as WorkExperience);
+      }
+      break;
+    }
+    
+    // Try to match job titles
+    for (const pattern of jobTitlePatterns) {
+      const jobMatch = line.match(pattern);
+      if (jobMatch) {
+        // If we have a previous experience, save it
+        if (currentExperience && currentExperience.companyName && currentExperience.jobTitle) {
+          experiences.push(currentExperience as WorkExperience);
+        }
         
-        const experience: WorkExperience = {
-          companyName: companyName,
-          jobTitle: jobTitleMatch ? jobTitleMatch[0].trim() : 'Job title to be specified',
-          startDate: dateMatch ? dateMatch[1] : '',
-          jobDescription: 'Job description extracted from resume. Please review and update with specific details.',
-          achievements: ['Please add specific achievements and responsibilities']
+        currentExperience = {
+          jobTitle: jobMatch[0].trim(),
+          companyName: '',
+          startDate: '',
+          jobDescription: '',
+          achievements: []
         };
         
-        experiences.push(experience);
+        // Look for company and dates in nearby lines
+        for (let j = Math.max(0, i - 2); j <= Math.min(lines.length - 1, i + 3); j++) {
+          if (j === i) continue;
+          
+          const nearbyLine = lines[j];
+          
+          // Try to find company
+          if (!currentExperience.companyName) {
+            for (const companyPattern of companyPatterns) {
+              const companyMatch = nearbyLine.match(companyPattern);
+              if (companyMatch) {
+                currentExperience.companyName = companyMatch[1].trim();
+                break;
+              }
+            }
+          }
+          
+          // Try to find dates
+          if (!currentExperience.startDate) {
+            for (const datePattern of datePatterns) {
+              const dateMatch = nearbyLine.match(datePattern);
+              if (dateMatch) {
+                currentExperience.startDate = dateMatch[1];
+                currentExperience.endDate = dateMatch[2].toLowerCase() === 'present' || dateMatch[2].toLowerCase() === 'current' ? 'Present' : dateMatch[2];
+                break;
+              }
+            }
+          }
+        }
+        break;
+      }
+    }
+    
+    // If we're in an experience and this line looks like an achievement/responsibility
+    if (currentExperience && (line.startsWith('•') || line.startsWith('-') || line.startsWith('*') || 
+        /^(responsible for|managed|led|developed|created|implemented|achieved|increased|decreased|improved)/i.test(line))) {
+      const achievement = line.replace(/^[•\-*]\s*/, '').trim();
+      if (achievement && !currentExperience.achievements?.includes(achievement)) {
+        currentExperience.achievements = currentExperience.achievements || [];
+        currentExperience.achievements.push(achievement);
       }
     }
   }
   
-  return experiences;
+  // Add the last experience if exists
+  if (currentExperience && currentExperience.companyName && currentExperience.jobTitle) {
+    experiences.push(currentExperience as WorkExperience);
+  }
+  
+  // Fill in missing data with defaults
+  return experiences.map(exp => ({
+    ...exp,
+    jobDescription: exp.jobDescription || 'Please add job description and responsibilities',
+    achievements: exp.achievements && exp.achievements.length > 0 ? exp.achievements : ['Please add specific achievements and responsibilities']
+  }));
 }
 
 function extractEducationSections(text: string): any[] {
@@ -428,19 +529,26 @@ async function extractTextFromFile(file: File): Promise<string> {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
 
-    if (file.type === 'text/plain') {
+    // Use file extension as primary detection method since MIME types can be unreliable
+    if (fileExtension === '.txt' || file.type === 'text/plain') {
       return await file.text();
-    } else if (file.type === 'application/pdf') {
-      // For PDF files, we'll provide a helpful message
-      return `PDF file detected: ${file.name}. Please convert your PDF to a Word document (.docx) or text file (.txt) for better parsing, or manually enter the information in the builder.`;
-    } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+    } else if (fileExtension === '.pdf' || file.type === 'application/pdf') {
+      console.log('Processing PDF document with pdf-parse...');
+      const pdfData = await pdfParse(buffer);
+      console.log('PDF extraction result:', pdfData.text.substring(0, 200) + '...');
+      return pdfData.text;
+    } else if (fileExtension === '.docx' || fileExtension === '.doc' || 
+               file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
                file.type === 'application/msword') {
+      console.log('Processing Word document with mammoth...');
       const result = await mammoth.extractRawText({ buffer });
+      console.log('Mammoth extraction result:', result.value.substring(0, 200) + '...');
       return result.value;
     } else {
       // Fallback for unknown file types
-      return `Unable to extract text from ${file.name}. File type: ${file.type}`;
+      return `Unable to extract text from ${file.name}. File type: ${file.type}, Extension: ${fileExtension}`;
     }
   } catch (error) {
     console.error('Error extracting text from file:', error);

@@ -1,5 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import { 
+  Document, 
+  Packer, 
+  Paragraph, 
+  TextRun, 
+  HeadingLevel,
+  AlignmentType,
+  BorderStyle,
+  ShadingType,
+  WidthType,
+  Table,
+  TableRow,
+  TableCell,
+  SectionType,
+  Header,
+  Footer
+} from 'docx';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,199 +28,376 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the Word document
+    // Create the Word document with enhanced styling matching the preview
     const doc = new Document({
+      styles: {
+        default: {
+          heading1: {
+            run: {
+              size: 32,
+              bold: true,
+              color: "1F2937", // Dark gray like in preview
+              font: "Geist",
+            },
+            paragraph: {
+              spacing: { after: 240, before: 240 },
+              border: {
+                bottom: {
+                  color: "D1D5DB", // Light gray border
+                  space: 4,
+                  style: BorderStyle.SINGLE,
+                  size: 8,
+                }
+              }
+            },
+          },
+        },
+      },
       sections: [{
         properties: {
           page: {
             margin: {
-              top: 1440, // 1 inch
-              right: 1440,
-              bottom: 1440,
-              left: 1440,
+              top: 1150, // Slightly smaller margins for more content
+              right: 1150,
+              bottom: 1150,
+              left: 1150,
             },
           },
         },
         children: [
-          // Header with name and contact info
+          // Header - Name (Large and Centered like preview)
           new Paragraph({
             children: [
               new TextRun({
-                text: (resumeData.personal.fullName || 'Your Name').toUpperCase(),
-                size: 32,
+                text: resumeData.personal.fullName || 'Your Name',
+                size: 48, // Larger like preview
                 bold: true,
-                color: '2E2E2E',
-                font: 'Arial',
+                color: '1F2937', // Dark gray matching preview
+                font: 'Geist',
               }),
             ],
-            spacing: { after: 200 },
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 240 },
           }),
 
-          // Contact information
+          // Contact Information (Centered like preview)
           new Paragraph({
             children: [
               new TextRun({
-                text: `${resumeData.personal.email || ''} | ${resumeData.personal.phone || ''} | ${resumeData.personal.location || ''}`,
-                size: 20,
-                color: '666666',
-                font: 'Arial',
+                text: `${resumeData.personal.email || ''} | ${resumeData.personal.phone || ''}`,
+                size: 22,
+                color: '6B7280', // Medium gray like preview
+                font: 'Geist',
               }),
             ],
-            spacing: { after: 400 },
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 120 },
           }),
 
-          // LinkedIn and Portfolio
+          // Second line of contact info if location exists
+          ...(resumeData.personal.location ? [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: resumeData.personal.location,
+                  size: 22,
+                  color: '6B7280',
+                  font: 'Geist',
+                }),
+              ],
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 120 },
+            })
+          ] : []),
+
+          // LinkedIn and Portfolio (Centered like preview)
           ...(resumeData.personal.linkedin || resumeData.personal.portfolio ? [
             new Paragraph({
               children: [
                 new TextRun({
-                  text: `${resumeData.personal.linkedin ? `LinkedIn: ${resumeData.personal.linkedin}` : ''}${resumeData.personal.linkedin && resumeData.personal.portfolio ? ' | ' : ''}${resumeData.personal.portfolio ? `Portfolio: ${resumeData.personal.portfolio}` : ''}`,
-                  size: 18,
-                  color: '666666',
-                  font: 'Arial',
+                  text: [
+                    resumeData.personal.linkedin ? resumeData.personal.linkedin : '',
+                    resumeData.personal.linkedin && resumeData.personal.portfolio ? ' | ' : '',
+                    resumeData.personal.portfolio ? resumeData.personal.portfolio : ''
+                  ].join(''),
+                  size: 20,
+                  color: '6B7280',
+                  font: 'Geist',
                 }),
               ],
-              spacing: { after: 400 },
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 480 },
             })
-          ] : []),
+          ] : [
+            new Paragraph({ text: '', spacing: { after: 480 } })
+          ]),
 
-          // Professional Summary
+          // Professional Summary (with proper heading styling)
           ...(resumeData.summary.careerObjective ? [
             new Paragraph({
-              text: 'PROFESSIONAL SUMMARY',
-              heading: HeadingLevel.HEADING_1,
-              spacing: { before: 200, after: 100 },
+              children: [
+                new TextRun({
+                  text: 'PROFESSIONAL SUMMARY',
+                  size: 28,
+                  bold: true,
+                  color: '1F2937',
+                  font: 'Geist',
+                }),
+              ],
+              spacing: { before: 240, after: 160 },
+              border: {
+                bottom: {
+                  color: "D1D5DB",
+                  space: 4,
+                  style: BorderStyle.SINGLE,
+                  size: 8,
+                }
+              }
             }),
             new Paragraph({
               children: [
                 new TextRun({
                   text: resumeData.summary.careerObjective,
-                  size: 20,
-                  color: '2E2E2E',
+                  size: 22,
+                  color: '374151', // Slightly lighter than headings
+                  font: 'Geist',
                 }),
               ],
-              spacing: { after: 400 },
+              spacing: { after: 480, line: 360 }, // Better line spacing
             })
           ] : []),
 
-          // Work Experience
+          // Work Experience (Enhanced styling)
           ...(resumeData.experience.length > 0 ? [
             new Paragraph({
-              text: 'PROFESSIONAL EXPERIENCE',
-              heading: HeadingLevel.HEADING_1,
-              spacing: { before: 200, after: 100 },
+              children: [
+                new TextRun({
+                  text: 'PROFESSIONAL EXPERIENCE',
+                  size: 28,
+                  bold: true,
+                  color: '1F2937',
+                  font: 'Geist',
+                }),
+              ],
+              spacing: { before: 240, after: 240 },
+              border: {
+                bottom: {
+                  color: "D1D5DB",
+                  space: 4,
+                  style: BorderStyle.SINGLE,
+                  size: 8,
+                }
+              }
             }),
             ...resumeData.experience.flatMap((exp: any, index: number) => [
+              // Job title and company (like preview)
               new Paragraph({
                 children: [
                   new TextRun({
                     text: exp.jobTitle || '',
                     bold: true,
-                    size: 22,
-                    color: '2E2E2E',
-                  }),
-                  new TextRun({
-                    text: ` | ${exp.companyName || ''}`,
-                    size: 22,
-                    color: '2E2E2E',
+                    size: 24,
+                    color: '1F2937',
+                    font: 'Geist',
                   }),
                 ],
-                spacing: { after: 100 },
+                spacing: { after: 80 },
               }),
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `${exp.startDate || ''} - ${exp.endDate || 'Present'}`,
-                    size: 18,
-                    color: '666666',
-                    italics: true,
+                    text: exp.companyName || '',
+                    size: 22,
+                    color: '6B7280',
+                    font: 'Geist',
                   }),
                 ],
-                spacing: { after: 200 },
+                spacing: { after: 160 },
               }),
-              ...(exp.jobDescription ? [
+              // Dates (right aligned like in preview would be ideal, but we'll keep it simple)
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `${exp.startDate || ''} - ${exp.endDate || 'Present'}`,
+                    size: 20,
+                    color: '6B7280',
+                    italics: true,
+                    font: 'Geist',
+                  }),
+                ],
+                spacing: { after: 240 },
+              }),
+              // Job description
+              ...(exp.jobDescription && exp.jobDescription !== 'Please add job description and responsibilities' ? [
                 new Paragraph({
                   children: [
                     new TextRun({
                       text: exp.jobDescription,
-                      size: 20,
-                      color: '2E2E2E',
+                      size: 22,
+                      color: '374151',
+                      font: 'Geist',
                     }),
                   ],
-                  spacing: { after: 200 },
+                  spacing: { after: 240, line: 300 },
                 })
               ] : []),
+              // Achievements with bullet points
               ...(exp.achievements && Array.isArray(exp.achievements) && exp.achievements.length > 0 ? 
-                exp.achievements.map((achievement: any) => 
-                  new Paragraph({
-                    children: [
-                      new TextRun({
-                        text: '- ' + (achievement || ''),
-                        size: 20,
-                        color: '2E2E2E',
-                      }),
-                    ],
-                    spacing: { after: 100 },
-                  })
-                ) : []
+                exp.achievements
+                  .filter((achievement: string) => achievement && achievement.trim() && achievement !== 'Please add specific achievements and responsibilities')
+                  .map((achievement: string) => 
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: `• ${achievement}`,
+                          size: 22,
+                          color: '374151',
+                          font: 'Geist',
+                        }),
+                      ],
+                      spacing: { after: 120, line: 300 },
+                      indent: { left: 360 }, // Indent bullet points
+                    })
+                  ) : []
               ),
+              // Spacing between experience entries
               ...(index < resumeData.experience.length - 1 ? [
                 new Paragraph({
                   text: '',
-                  spacing: { after: 200 },
+                  spacing: { after: 360 },
                 })
               ] : [])
             ])
           ] : []),
 
-          // Education
+          // Education (Enhanced styling)
           ...(resumeData.education.length > 0 ? [
             new Paragraph({
-              text: 'EDUCATION',
-              heading: HeadingLevel.HEADING_1,
-              spacing: { before: 200, after: 100 },
+              children: [
+                new TextRun({
+                  text: 'EDUCATION',
+                  size: 28,
+                  bold: true,
+                  color: '1F2937',
+                  font: 'Geist',
+                }),
+              ],
+              spacing: { before: 480, after: 240 },
+              border: {
+                bottom: {
+                  color: "D1D5DB",
+                  space: 4,
+                  style: BorderStyle.SINGLE,
+                  size: 8,
+                }
+              }
             }),
-            ...resumeData.education.map((edu: any) => [
+            ...resumeData.education.flatMap((edu: any, index: number) => [
               new Paragraph({
                 children: [
                   new TextRun({
                     text: edu.degree || 'Your Degree',
                     bold: true,
-                    size: 22,
-                    color: '2E2E2E',
+                    size: 24,
+                    color: '1F2937',
+                    font: 'Geist',
                   }),
                 ],
-                spacing: { after: 100 },
+                spacing: { after: 80 },
               }),
               new Paragraph({
                 children: [
                   new TextRun({
                     text: edu.institution || 'Your University',
-                    size: 20,
-                    color: '2E2E2E',
+                    size: 22,
+                    color: '6B7280',
+                    font: 'Geist',
                   }),
                 ],
-                spacing: { after: 200 },
+                spacing: { after: edu.major ? 80 : 240 },
               }),
-            ]).flat()
+              ...(edu.major ? [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: edu.major,
+                      size: 22,
+                      color: '6B7280',
+                      font: 'Geist',
+                    }),
+                  ],
+                  spacing: { after: 240 },
+                })
+              ] : []),
+              ...(edu.graduationDate ? [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: edu.graduationDate,
+                      size: 20,
+                      color: '6B7280',
+                      italics: true,
+                      font: 'Geist',
+                    }),
+                  ],
+                  spacing: { after: 240 },
+                })
+              ] : []),
+              ...(edu.gpa ? [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `GPA: ${edu.gpa}`,
+                      size: 20,
+                      color: '6B7280',
+                      font: 'Geist',
+                    }),
+                  ],
+                  spacing: { after: 240 },
+                })
+              ] : []),
+              // Spacing between education entries
+              ...(index < resumeData.education.length - 1 ? [
+                new Paragraph({
+                  text: '',
+                  spacing: { after: 240 },
+                })
+              ] : [])
+            ])
           ] : []),
 
-          // Skills
+          // Skills (Enhanced styling like preview)
           ...(resumeData.summary.keySkills.length > 0 ? [
             new Paragraph({
-              text: 'SKILLS',
-              heading: HeadingLevel.HEADING_1,
-              spacing: { before: 200, after: 100 },
+              children: [
+                new TextRun({
+                  text: 'SKILLS',
+                  size: 28,
+                  bold: true,
+                  color: '1F2937',
+                  font: 'Geist',
+                }),
+              ],
+              spacing: { before: 480, after: 240 },
+              border: {
+                bottom: {
+                  color: "D1D5DB",
+                  space: 4,
+                  style: BorderStyle.SINGLE,
+                  size: 8,
+                }
+              }
             }),
             new Paragraph({
               children: [
                 new TextRun({
                   text: resumeData.summary.keySkills.join(', '),
-                  size: 20,
-                  color: '2E2E2E',
+                  size: 22,
+                  color: '374151',
+                  font: 'Geist',
                 }),
               ],
-              spacing: { after: 400 },
+              spacing: { after: 480, line: 300 },
             })
           ] : []),
         ],

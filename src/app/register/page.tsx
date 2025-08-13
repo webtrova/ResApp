@@ -22,7 +22,14 @@ export default function Register() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.push('/builder');
+      // Check if there's a redirect URL stored (like from upload page)
+      const redirectUrl = localStorage.getItem('redirectAfterLogin');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectAfterLogin');
+        router.push(redirectUrl);
+      } else {
+        router.push('/builder');
+      }
     }
   }, [user, router]);
 
@@ -107,13 +114,13 @@ export default function Register() {
               <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 overflow-hidden animate-pulse">
                 <img 
                   src="/logo.png" 
-                  alt="ResApp Logo" 
+                  alt="ResumeStudio Logo" 
                   className="w-full h-full object-cover brightness-0 invert"
                 />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  ResApp
+                  ResumeStudio
                 </h1>
                 <span className="text-sm text-gray-400">AI-Powered Resume Builder</span>
               </div>
@@ -134,7 +141,7 @@ export default function Register() {
           <div className="bg-gray-800/50 backdrop-blur-xl rounded-3xl border border-gray-700/50 p-8 shadow-2xl">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
-              <p className="text-gray-400">Join ResApp and start building your professional resume</p>
+              <p className="text-gray-400">Join ResumeStudio and start building your professional resume</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

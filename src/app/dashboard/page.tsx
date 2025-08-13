@@ -59,13 +59,13 @@ export default function Dashboard() {
               <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 overflow-hidden animate-pulse">
                 <img 
                   src="/logo.png" 
-                  alt="ResApp Logo" 
+                  alt="ResumeStudio Logo" 
                   className="w-full h-full object-cover brightness-0 invert"
                 />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  ResApp
+                  ResumeStudio
                 </h1>
                 <span className="text-sm text-gray-400">AI-Powered Resume Builder</span>
               </div>

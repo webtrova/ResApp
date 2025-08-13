@@ -12,13 +12,21 @@ export default function Upload() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState('');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
-  // Redirect to login if not authenticated
+  // Check if there's a pending file upload from localStorage
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
+    if (user) {
+      const pendingUpload = localStorage.getItem('pendingFileUpload');
+      if (pendingUpload) {
+        setShowAuthPrompt(false);
+        localStorage.removeItem('pendingFileUpload');
+        // User just logged in and had a pending upload, show a message
+        setError('Please select your file again to upload.');
+      }
     }
-  }, [user, router]);
+  }, [user]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -29,9 +37,28 @@ export default function Upload() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    setSelectedFile(file);
+    setError('');
+
+    // If user is not authenticated, show auth prompt
+    if (!user) {
+      setShowAuthPrompt(true);
+      // Store that user was trying to upload a file
+      localStorage.setItem('pendingFileUpload', 'true');
+      localStorage.setItem('redirectAfterLogin', '/upload');
+      return;
+    }
+
+    // If user is authenticated, proceed with upload
+    handleFileUpload(file);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (!user) return;
 
     setIsUploading(true);
     setError('');
@@ -40,7 +67,7 @@ export default function Upload() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('userId', user!.id.toString());
+      formData.append('userId', user.id.toString());
 
       const response = await fetch('/api/resume/upload', {
         method: 'POST',
@@ -66,14 +93,15 @@ export default function Upload() {
     }
   };
 
-  // Show loading while checking authentication
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-      </div>
-    );
-  }
+  const handleAuthPromptLogin = () => {
+    router.push('/login');
+  };
+
+  const handleAuthPromptSignup = () => {
+    router.push('/register');
+  };
+
+  // Don't show loading screen anymore - let users interact with upload even without auth
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
@@ -105,7 +133,7 @@ export default function Upload() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  ResApp
+                  ResumeStudio
                 </h1>
                 <span className="text-sm text-gray-400">AI-Powered Resume Builder</span>
               </div>
@@ -154,6 +182,49 @@ export default function Upload() {
               </div>
             )}
 
+            {showAuthPrompt && (
+              <div className="mb-6 bg-blue-500/20 border border-blue-500/50 rounded-xl p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-semibold text-white mb-2">Authentication Required</h4>
+                    <p className="text-blue-200 mb-4">
+                      To upload and process your resume, you need to be logged in. This helps us save your progress and keep your data secure.
+                    </p>
+                    {selectedFile && (
+                      <p className="text-blue-300 text-sm mb-4">
+                        Selected file: <strong>{selectedFile.name}</strong> - We'll process it after you sign in.
+                      </p>
+                    )}
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={handleAuthPromptLogin}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 font-medium"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        onClick={handleAuthPromptSignup}
+                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 font-medium"
+                      >
+                        Create Account
+                      </button>
+                      <button
+                        onClick={() => setShowAuthPrompt(false)}
+                        className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors duration-300 font-medium"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-6">
               {/* File Upload Area */}
               <div className="border-2 border-dashed border-gray-600/50 rounded-2xl p-8 text-center hover:border-blue-500/50 transition-colors duration-300">
@@ -167,7 +238,7 @@ export default function Upload() {
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx,.txt"
-                  onChange={handleFileUpload}
+                  onChange={handleFileSelection}
                   disabled={isUploading}
                   className="hidden"
                   id="file-upload"
