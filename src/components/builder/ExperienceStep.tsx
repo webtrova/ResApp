@@ -200,8 +200,8 @@ export default function ExperienceStep({
                       </div>
                     </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
                         <label className="block text-sm font-semibold text-gray-300">
                           Job Description
                         </label>
@@ -220,56 +220,61 @@ export default function ExperienceStep({
                       <textarea
                         value={exp.jobDescription}
                         onChange={(e) => updateExperience(index, 'jobDescription', e.target.value)}
-                        rows={3}
-                        className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                        rows={4}
+                        className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 resize-none"
                         placeholder="Brief description of your role and responsibilities..."
                       />
                     </div>
 
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
                         <label className="block text-sm font-semibold text-gray-300">
                           Key Achievements & Responsibilities
                         </label>
                         <button
                           onClick={() => addAchievement(index)}
-                          className="text-green-400 hover:text-green-300 transition-colors text-sm"
+                          className="text-green-400 hover:text-green-300 transition-colors text-sm font-medium"
                         >
                           + Add Achievement
                         </button>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-4">
                         {exp.achievements.map((achievement, achIndex) => (
-                          <div key={achIndex} className="space-y-2">
-                            <div className="flex space-x-2">
+                          <div key={achIndex} className="bg-gray-800/30 rounded-lg p-4 border border-gray-700/50">
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-gray-400 font-medium">
+                                  Achievement {achIndex + 1}
+                                </span>
+                                <div className="flex items-center space-x-2">
+                                  <AIEnhanceButton
+                                    text={achievement}
+                                    onAccept={(enhancedText) => updateAchievement(index, achIndex, enhancedText)}
+                                    context={{
+                                      jobTitle: exp.jobTitle,
+                                      companyName: exp.companyName,
+                                      type: 'achievement'
+                                    }}
+                                    size="sm"
+                                    disabled={!achievement.trim()}
+                                  />
+                                  {exp.achievements.length > 1 && (
+                                    <button
+                                      onClick={() => removeAchievement(index, achIndex)}
+                                      className="text-red-400 hover:text-red-300 transition-colors p-1 rounded hover:bg-red-500/10"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                               <textarea
                                 value={achievement}
                                 onChange={(e) => updateAchievement(index, achIndex, e.target.value)}
-                                rows={2}
-                                className="flex-1 px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
-                                placeholder={`Achievement ${achIndex + 1}: e.g., Increased team productivity by 25% through implementation of new workflow processes`}
+                                rows={3}
+                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 resize-none"
+                                placeholder={`e.g., Increased team productivity by 25% through implementation of new workflow processes`}
                               />
-                              <div className="flex flex-col space-y-1">
-                                <AIEnhanceButton
-                                  text={achievement}
-                                  onAccept={(enhancedText) => updateAchievement(index, achIndex, enhancedText)}
-                                  context={{
-                                    jobTitle: exp.jobTitle,
-                                    companyName: exp.companyName,
-                                    type: 'achievement'
-                                  }}
-                                  size="sm"
-                                  disabled={!achievement.trim()}
-                                />
-                                {exp.achievements.length > 1 && (
-                                  <button
-                                    onClick={() => removeAchievement(index, achIndex)}
-                                    className="text-red-400 hover:text-red-300 transition-colors p-1"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )}
-                              </div>
                             </div>
                           </div>
                         ))}

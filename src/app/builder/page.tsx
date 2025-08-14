@@ -17,6 +17,7 @@ import ExperienceStep from '@/components/builder/ExperienceStep';
 import EducationStep from '@/components/builder/EducationStep';
 import SkillsStep from '@/components/builder/SkillsStep';
 import ReviewStep from '@/components/builder/ReviewStep';
+import LivePreview from '@/components/builder/LivePreview';
 
 interface Step {
   id: number;
@@ -80,6 +81,7 @@ export default function ResumeBuilder() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [uploadedMessage, setUploadedMessage] = useState('');
   const [direction, setDirection] = useState(0);
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
 
   // Get resumeId from URL params
   const resumeIdParam = searchParams?.get('resumeId');
@@ -115,18 +117,18 @@ export default function ResumeBuilder() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading your resume...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-secondary-300">Loading your resume...</p>
         </div>
       </div>
     );
@@ -222,9 +224,9 @@ export default function ResumeBuilder() {
   const CurrentStepComponent = steps[currentStep - 1].component;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 text-white">
       {/* Header */}
-      <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50">
+      <header className="bg-secondary-800/50 backdrop-blur-xl border-b border-secondary-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -237,7 +239,7 @@ export default function ResumeBuilder() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Resume Builder</h1>
-                <p className="text-sm text-gray-400">Step {currentStep} of {steps.length}</p>
+                <p className="text-sm text-secondary-400">Step {currentStep} of {steps.length}</p>
               </div>
             </div>
             <button
@@ -245,7 +247,7 @@ export default function ResumeBuilder() {
                 logout();
                 router.push('/');
               }}
-              className="text-gray-300 hover:text-white transition-all duration-300"
+                              className="text-secondary-300 hover:text-white transition-all duration-300"
             >
               Sign Out
             </button>
@@ -259,7 +261,7 @@ export default function ResumeBuilder() {
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
-          className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg"
+                      className="fixed top-4 right-4 z-50 bg-primary-500 text-white px-6 py-4 rounded-xl shadow-lg"
         >
           <div className="flex items-center space-x-2">
             <span className="text-xl">✅</span>
@@ -283,8 +285,8 @@ export default function ResumeBuilder() {
       )}
 
       {/* Progress Steps */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-12">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
@@ -292,8 +294,8 @@ export default function ResumeBuilder() {
                   onClick={() => goToStep(step.id)}
                   className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-300 ${
                     currentStep >= step.id
-                      ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+              : 'bg-secondary-700 text-secondary-300 hover:bg-secondary-600'
                   }`}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -302,7 +304,7 @@ export default function ResumeBuilder() {
                 </motion.button>
                 {index < steps.length - 1 && (
                   <div className={`w-16 h-1 mx-2 transition-all duration-300 ${
-                    currentStep > step.id ? 'bg-green-500' : 'bg-gray-700'
+                    currentStep > step.id ? 'bg-primary-500' : 'bg-secondary-700'
                   }`} />
                 )}
               </div>
@@ -312,42 +314,89 @@ export default function ResumeBuilder() {
             <h2 className="text-2xl font-bold text-white mb-2">
               {steps[currentStep - 1].title}
             </h2>
-            <p className="text-gray-400">
+            <p className="text-secondary-400">
               {steps[currentStep - 1].subtitle}
             </p>
           </div>
         </div>
 
-        {/* Step Content */}
-        <div className="relative overflow-hidden">
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={currentStep}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 }
-              }}
-              className="w-full"
-            >
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-8">
-                <CurrentStepComponent
+        {/* Step Content with Live Preview */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Form Section */}
+          <div className="relative overflow-hidden">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={currentStep}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 }
+                }}
+                className="w-full"
+              >
+                <div className="bg-secondary-800/50 backdrop-blur-sm rounded-2xl border border-secondary-700/50 p-8">
+                  <CurrentStepComponent
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                    onNext={nextStep}
+                    onPrev={prevStep}
+                    canGoNext={currentStep < steps.length}
+                    canGoPrev={currentStep > 1}
+                    onGenerate={handleGenerateResume}
+                    isGenerating={isGenerating}
+                    isLastStep={currentStep === steps.length}
+                  />
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Live Preview Section */}
+          <div className="hidden lg:block">
+            <LivePreview
+              resumeData={resumeData}
+              onGenerate={handleGenerateResume}
+              isGenerating={isGenerating}
+              className="sticky top-8"
+            />
+          </div>
+        </div>
+
+        {/* Mobile Preview Toggle */}
+        <div className="lg:hidden mt-8">
+          <motion.button
+            onClick={() => setShowMobilePreview(!showMobilePreview)}
+            className="w-full bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-secondary-700/50 p-4 text-white hover:bg-secondary-700/50 transition-all duration-300"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <Eye className="w-5 h-5" />
+              <span className="font-medium">
+                {showMobilePreview ? 'Hide Preview' : 'Show Resume Preview'}
+              </span>
+            </div>
+          </motion.button>
+          
+          <AnimatePresence>
+            {showMobilePreview && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4"
+              >
+                <LivePreview
                   resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  onNext={nextStep}
-                  onPrev={prevStep}
-                  canGoNext={currentStep < steps.length}
-                  canGoPrev={currentStep > 1}
                   onGenerate={handleGenerateResume}
                   isGenerating={isGenerating}
-                  isLastStep={currentStep === steps.length}
                 />
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
@@ -356,7 +405,7 @@ export default function ResumeBuilder() {
           <motion.button
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-secondary-700 text-white rounded-xl hover:bg-secondary-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             whileHover={{ scale: currentStep > 1 ? 1.05 : 1 }}
             whileTap={{ scale: currentStep > 1 ? 0.95 : 1 }}
           >
@@ -364,7 +413,7 @@ export default function ResumeBuilder() {
           </motion.button>
 
           <div className="text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-secondary-400 text-sm">
               Step {currentStep} of {steps.length}
             </p>
           </div>
@@ -372,7 +421,7 @@ export default function ResumeBuilder() {
           <motion.button
             onClick={nextStep}
             disabled={currentStep === steps.length}
-            className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             whileHover={{ scale: currentStep < steps.length ? 1.05 : 1 }}
             whileTap={{ scale: currentStep < steps.length ? 0.95 : 1 }}
           >

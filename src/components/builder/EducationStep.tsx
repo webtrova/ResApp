@@ -29,7 +29,7 @@ export default function EducationStep({
       degree: '',
       major: '',
       graduationDate: '',
-      gpa: '',
+      gpa: undefined,
       achievements: ['']
     };
     
@@ -63,7 +63,8 @@ export default function EducationStep({
 
   const addAchievement = (eduIndex: number) => {
     const newEducation = [...resumeData.education];
-    newEducation[eduIndex].achievements = [...newEducation[eduIndex].achievements, ''];
+    const currentAchievements = newEducation[eduIndex].achievements || [];
+    newEducation[eduIndex].achievements = [...currentAchievements, ''];
     setResumeData((prev: ResumeData) => ({
       ...prev,
       education: newEducation
@@ -72,7 +73,9 @@ export default function EducationStep({
 
   const updateAchievement = (eduIndex: number, achIndex: number, value: string) => {
     const newEducation = [...resumeData.education];
-    newEducation[eduIndex].achievements[achIndex] = value;
+    if (newEducation[eduIndex].achievements) {
+      newEducation[eduIndex].achievements![achIndex] = value;
+    }
     setResumeData((prev: ResumeData) => ({
       ...prev,
       education: newEducation
@@ -81,7 +84,9 @@ export default function EducationStep({
 
   const removeAchievement = (eduIndex: number, achIndex: number) => {
     const newEducation = [...resumeData.education];
-    newEducation[eduIndex].achievements = newEducation[eduIndex].achievements.filter((_, i) => i !== achIndex);
+    if (newEducation[eduIndex].achievements) {
+      newEducation[eduIndex].achievements = newEducation[eduIndex].achievements!.filter((_, i) => i !== achIndex);
+    }
     setResumeData((prev: ResumeData) => ({
       ...prev,
       education: newEducation
@@ -227,7 +232,7 @@ export default function EducationStep({
                         </button>
                       </div>
                       <div className="space-y-2">
-                        {edu.achievements.map((achievement, achIndex) => (
+                        {(edu.achievements || []).map((achievement, achIndex) => (
                           <div key={achIndex} className="flex space-x-2">
                             <textarea
                               value={achievement}
@@ -236,7 +241,7 @@ export default function EducationStep({
                               className="flex-1 px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                               placeholder={`Achievement ${achIndex + 1}: e.g., Dean's List, Summa Cum Laude, President of Student Council`}
                             />
-                            {edu.achievements.length > 1 && (
+                            {(edu.achievements || []).length > 1 && (
                               <button
                                 onClick={() => removeAchievement(index, achIndex)}
                                 className="text-red-400 hover:text-red-300 transition-colors"

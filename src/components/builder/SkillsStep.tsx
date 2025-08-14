@@ -43,7 +43,7 @@ export default function SkillsStep({
     
     const skill: Skill = {
       name: skillName.trim(),
-      category: category as 'technical' | 'soft' | 'languages' | 'tools',
+      category: category as 'technical' | 'soft' | 'industry',
       level: 'intermediate'
     };
     

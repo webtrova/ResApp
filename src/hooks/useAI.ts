@@ -21,6 +21,24 @@ export function useAI() {
   const enhanceText = async (text: string, context: any = {}): Promise<string | null> => {
     setIsEnhancing(true);
     try {
+      // First try the rule-based enhancer (no API key needed)
+      const ruleBasedResponse = await fetch('/api/ai/enhance-rule-based', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, context }),
+      });
+
+      if (ruleBasedResponse.ok) {
+        const data: AIEnhancementResponse = await ruleBasedResponse.json();
+        if (data.success) {
+          console.log('Using rule-based enhancement');
+          return data.enhanced;
+        }
+      }
+
+      // If rule-based fails, try the AI API (if available)
       const response = await fetch('/api/ai/enhance', {
         method: 'POST',
         headers: {
@@ -38,9 +56,39 @@ export function useAI() {
           console.log('Trying fallback enhancement...');
           return await tryFallbackEnhancement(text, context);
         } else if (response.status === 401) {
-          alert('AI service authentication error. Please contact support.');
+          console.log('AI service not available, using rule-based enhancement');
+          // Fall back to rule-based enhancement
+          const fallbackResponse = await fetch('/api/ai/enhance-rule-based', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text, context }),
+          });
+          
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            if (fallbackData.success) {
+              return fallbackData.enhanced;
+            }
+          }
         } else {
-          alert('AI enhancement failed. Please try again.');
+          console.log('AI enhancement failed, using rule-based enhancement');
+          // Fall back to rule-based enhancement
+          const fallbackResponse = await fetch('/api/ai/enhance-rule-based', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text, context }),
+          });
+          
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            if (fallbackData.success) {
+              return fallbackData.enhanced;
+            }
+          }
         }
         return null;
       }
@@ -55,6 +103,25 @@ export function useAI() {
       }
     } catch (error) {
       console.error('Error enhancing text:', error);
+      // Try rule-based enhancement as final fallback
+      try {
+        const fallbackResponse = await fetch('/api/ai/enhance-rule-based', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text, context }),
+        });
+        
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackData.success) {
+            return fallbackData.enhanced;
+          }
+        }
+      } catch (fallbackError) {
+        console.error('Rule-based enhancement also failed:', fallbackError);
+      }
       return null;
     } finally {
       setIsEnhancing(false);

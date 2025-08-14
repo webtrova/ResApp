@@ -98,42 +98,49 @@ export default function AIEnhanceButton({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          className="absolute top-full left-0 right-0 mt-2 z-50"
+          className="absolute top-full left-0 right-0 mt-3 z-50 min-w-[400px]"
         >
-          <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 shadow-xl">
-            <div className="mb-3">
-              <h4 className="text-sm font-semibold text-white mb-2">AI Enhancement Suggestion:</h4>
-              <div className="space-y-2">
-                <div className="text-xs text-gray-400">Original:</div>
-                <div className="text-sm text-gray-300 bg-gray-700 rounded p-2 italic">
-                  {text}
+          <div className="bg-gray-800 border border-gray-600 rounded-xl p-6 shadow-2xl">
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-white mb-3 flex items-center">
+                <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
+                AI Enhancement Suggestion
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <div className="text-xs text-gray-400 mb-1 font-medium">Original:</div>
+                  <div className="text-sm text-gray-300 bg-gray-700/50 rounded-lg p-3 italic border border-gray-600/50">
+                    {text}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-400">Enhanced:</div>
-                <div className="text-sm text-white bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded p-3 border border-purple-500/30">
-                  {enhancedText}
+                <div>
+                  <div className="text-xs text-gray-400 mb-1 font-medium">Enhanced:</div>
+                  <div className="text-sm text-white bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg p-4 border border-purple-500/30 shadow-lg">
+                    {enhancedText}
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <motion.button
                 onClick={handleAccept}
-                className="flex items-center space-x-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors duration-300"
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors duration-300 font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Check size={14} />
-                <span>Accept</span>
+                <Check size={16} />
+                <span>Accept Enhancement</span>
               </motion.button>
               
               <motion.button
                 onClick={handleReject}
-                className="flex items-center space-x-1 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors duration-300"
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors duration-300 font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <X size={14} />
-                <span>Decline</span>
+                <X size={16} />
+                <span>Keep Original</span>
               </motion.button>
             </div>
           </div>

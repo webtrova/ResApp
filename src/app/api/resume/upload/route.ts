@@ -2,7 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database/connection';
 import { ResumeData, WorkExperience } from '@/types/resume';
 import mammoth from 'mammoth';
-import pdfParse from 'pdf-parse';
+
+// Dynamic import for pdf-parse to avoid build issues
+let pdfParse: any;
+if (typeof window === 'undefined') {
+  try {
+    pdfParse = require('pdf-parse');
+  } catch (error) {
+    console.log('pdf-parse not available:', error);
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -535,10 +544,15 @@ async function extractTextFromFile(file: File): Promise<string> {
     if (fileExtension === '.txt' || file.type === 'text/plain') {
       return await file.text();
     } else if (fileExtension === '.pdf' || file.type === 'application/pdf') {
-      console.log('Processing PDF document with pdf-parse...');
-      const pdfData = await pdfParse(buffer);
-      console.log('PDF extraction result:', pdfData.text.substring(0, 200) + '...');
-      return pdfData.text;
+      if (pdfParse) {
+        console.log('Processing PDF document with pdf-parse...');
+        const pdfData = await pdfParse(buffer);
+        console.log('PDF extraction result:', pdfData.text.substring(0, 200) + '...');
+        return pdfData.text;
+      } else {
+        console.log('PDF parsing not available, returning placeholder text');
+        return `PDF file uploaded: ${file.name}. PDF parsing is not available in this environment.`;
+      }
     } else if (fileExtension === '.docx' || fileExtension === '.doc' || 
                file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
                file.type === 'application/msword') {
