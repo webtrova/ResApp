@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-// Initialize DeepSeek client using OpenAI compatibility
-const deepseek = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  baseURL: 'https://api.deepseek.com/v1',
-});
+// Initialize DeepSeek client using OpenAI compatibility (only if API key exists)
+let deepseek: OpenAI | null = null;
+if (process.env.DEEPSEEK_API_KEY) {
+  deepseek = new OpenAI({
+    apiKey: process.env.DEEPSEEK_API_KEY,
+    baseURL: 'https://api.deepseek.com/v1',
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,6 +45,14 @@ export async function POST(request: NextRequest) {
           { error: 'Invalid suggestion type' },
           { status: 400 }
         );
+    }
+
+    // Check if AI service is available
+    if (!deepseek) {
+      return NextResponse.json(
+        { error: 'AI service not configured. Please set up DEEPSEEK_API_KEY or use the free enhancement options.' },
+        { status: 503 }
+      );
     }
 
     const completion = await deepseek.chat.completions.create({
