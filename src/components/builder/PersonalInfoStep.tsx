@@ -36,20 +36,20 @@ export default function PersonalInfoStep({
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div className="text-center mb-8">
+      <div className="text-center mb-6 sm:mb-8">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-3xl"
+          className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-2xl sm:text-3xl"
         >
-          <User size={32} />
+          <User size={24} className="sm:w-8 sm:h-8" />
         </motion.div>
-        <h3 className="text-2xl font-bold text-white mb-2">Let's start with your basic information</h3>
-        <p className="text-gray-400">This information will appear at the top of your resume</p>
+        <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Let's start with your basic information</h3>
+        <p className="text-gray-400 text-sm sm:text-base">This information will appear at the top of your resume</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -62,7 +62,7 @@ export default function PersonalInfoStep({
             type="text"
             value={resumeData.personal.fullName}
             onChange={(e) => updatePersonal('fullName', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
             placeholder="John Doe"
             required
           />
@@ -80,7 +80,7 @@ export default function PersonalInfoStep({
             type="email"
             value={resumeData.personal.email}
             onChange={(e) => updatePersonal('email', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
             placeholder="john@example.com"
             required
           />
@@ -98,7 +98,7 @@ export default function PersonalInfoStep({
             type="tel"
             value={resumeData.personal.phone}
             onChange={(e) => updatePersonal('phone', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
             placeholder="(555) 123-4567"
             required
           />
@@ -116,7 +116,7 @@ export default function PersonalInfoStep({
             type="text"
             value={resumeData.personal.location}
             onChange={(e) => updatePersonal('location', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
             placeholder="City, State"
           />
         </motion.div>
@@ -133,7 +133,7 @@ export default function PersonalInfoStep({
             type="url"
             value={resumeData.personal.linkedin}
             onChange={(e) => updatePersonal('linkedin', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
             placeholder="https://linkedin.com/in/yourprofile"
           />
         </motion.div>
@@ -150,7 +150,7 @@ export default function PersonalInfoStep({
             type="url"
             value={resumeData.personal.portfolio}
             onChange={(e) => updatePersonal('portfolio', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
             placeholder="https://yourportfolio.com"
           />
         </motion.div>
@@ -165,7 +165,7 @@ export default function PersonalInfoStep({
         <motion.button
           onClick={onNext}
           disabled={!isValid || !canGoNext}
-          className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
+          className={`px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base ${
             isValid && canGoNext
               ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 shadow-lg'
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
@@ -181,7 +181,7 @@ export default function PersonalInfoStep({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center text-red-400 text-sm"
+          className="text-center text-red-400 text-xs sm:text-sm"
         >
           Please fill in all required fields (marked with *)
         </motion.div>

@@ -136,7 +136,8 @@ export function useResume({ userId, resumeId, initialData }: UseResumeProps): Us
       const result = await response.json();
 
       if (result.success) {
-        const loadedData = result.resumes.resume_data;
+        // Handle both single resume and multiple resumes response formats
+        const loadedData = result.resume ? result.resume.resume_data : result.resumes.resume_data;
         setResumeData(loadedData);
         setOriginalData(loadedData);
         setCurrentResumeId(targetId);

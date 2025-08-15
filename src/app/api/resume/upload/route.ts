@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database/connection';
 import { ResumeData, WorkExperience } from '@/types/resume';
 import mammoth from 'mammoth';
+import EnhancedResumeParser from '@/lib/ai/enhanced-parser';
+import AIParsingService from '@/lib/ai/ai-parsing-service';
+import { SmartResumeParser } from '@/lib/ai/smart-resume-parser';
 
 // Dynamic import for pdf-parse to avoid build issues
 let pdfParse: any;
@@ -92,14 +95,64 @@ export async function POST(request: NextRequest) {
     const text = await extractTextFromFile(file);
     console.log('Extracted text:', text.substring(0, 500) + '...'); // Log first 500 chars for debugging
     
-    // Parse the extracted text
-    const parsedData = parseResumeText(text);
-    Object.assign(resumeData, parsedData);
+    // Use the enhanced parser for better accuracy
+    const parser = EnhancedResumeParser.getInstance();
+    const parsingResult = await parser.parseResume(text, fileType, fileName);
+    
+    // Use smart parser as backup/supplement
+    const smartParser = SmartResumeParser.getInstance();
+    const smartResult = await smartParser.parseResume(text);
+    
+    // Use AI to enhance the parsed data
+    const aiParsingService = AIParsingService.getInstance();
+    const aiResult = await aiParsingService.enhanceParsedData(text, parsingResult.extractedData, fileType);
+    
+    // Combine parsing results - prioritize enhanced parser results
+    Object.assign(resumeData, parsingResult.extractedData);
+    
+    // Supplement with smart parser results where data is missing
+    if (!resumeData.personal.fullName && smartResult.extractedData.personal.fullName) {
+      resumeData.personal.fullName = smartResult.extractedData.personal.fullName;
+    }
+    if (!resumeData.personal.email && smartResult.extractedData.personal.email) {
+      resumeData.personal.email = smartResult.extractedData.personal.email;
+    }
+    if (!resumeData.personal.phone && smartResult.extractedData.personal.phone) {
+      resumeData.personal.phone = smartResult.extractedData.personal.phone;
+    }
+    
+    // Supplement with AI enhancements where data is missing
+    if (!resumeData.personal.fullName && aiResult.enhancedData.personal?.fullName) {
+      resumeData.personal.fullName = aiResult.enhancedData.personal.fullName;
+    }
+    if (!resumeData.summary.careerObjective && aiResult.enhancedData.summary?.careerObjective) {
+      resumeData.summary.careerObjective = aiResult.enhancedData.summary.careerObjective;
+    }
+    
+    // Log parsing results for debugging
+    console.log('Smart parser confidence:', smartResult.confidence);
+    console.log('Enhanced parser confidence:', parsingResult.confidence);
+    console.log('AI enhancement confidence:', aiResult.confidence);
+    console.log('Total suggestions:', [...smartResult.suggestions, ...parsingResult.suggestions, ...aiResult.suggestions].length);
 
     // Save the uploaded file info and parsed data to database
     const result = await executeQuery(
-      'INSERT INTO resume_uploads (user_id, original_filename, file_type, extracted_text, parsed_data) VALUES (?, ?, ?, ?, ?)',
-      [userId, fileName, fileType, text, JSON.stringify(resumeData)]
+      'INSERT INTO resume_uploads (user_id, original_filename, file_type, extracted_text, parsed_data, optimization_results, confidence_score) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [
+        userId, 
+        fileName, 
+        fileType, 
+        text, 
+        JSON.stringify(resumeData),
+        JSON.stringify({
+          smartParserConfidence: smartResult.confidence,
+          parsingConfidence: parsingResult.confidence,
+          aiConfidence: aiResult.confidence,
+          enhancements: aiResult.enhancements,
+          suggestions: [...smartResult.suggestions, ...parsingResult.suggestions, ...aiResult.suggestions]
+        }),
+        Math.max(smartResult.confidence, parsingResult.confidence, aiResult.confidence)
+      ]
     ) as any;
 
     const uploadId = result.insertId;
@@ -117,7 +170,12 @@ export async function POST(request: NextRequest) {
       uploadId,
       resumeId,
       resumeData,
-      message: 'Resume uploaded and parsed successfully'
+      smartParserConfidence: smartResult.confidence,
+      parsingConfidence: parsingResult.confidence,
+      aiConfidence: aiResult.confidence,
+      suggestions: [...smartResult.suggestions, ...parsingResult.suggestions, ...aiResult.suggestions],
+      enhancements: aiResult.enhancements,
+      message: 'Resume uploaded and parsed successfully with AI enhancement'
     });
 
   } catch (error) {

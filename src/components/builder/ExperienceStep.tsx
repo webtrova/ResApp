@@ -96,20 +96,20 @@ export default function ExperienceStep({
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div className="text-center mb-8">
+      <div className="text-center mb-6 sm:mb-8">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-3xl"
+          className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-2xl sm:text-3xl"
         >
-          <Briefcase size={32} />
+          <Briefcase size={24} className="sm:w-8 sm:h-8" />
         </motion.div>
-        <h3 className="text-2xl font-bold text-white mb-2">Share your work experience</h3>
-        <p className="text-gray-400">Add your most relevant professional experiences</p>
+        <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Share your work experience</h3>
+        <p className="text-gray-400 text-sm sm:text-base">Add your most relevant professional experiences</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <AnimatePresence>
           {resumeData.experience.map((exp, index) => (
             <motion.div
@@ -118,24 +118,34 @@ export default function ExperienceStep({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30"
+              className="bg-gray-700/30 rounded-xl p-4 sm:p-6 border border-gray-600/30"
             >
               <div className="flex justify-between items-start mb-4">
                 <h4 className="text-lg font-semibold text-white">
                   {exp.jobTitle || exp.companyName || `Experience ${index + 1}`}
                 </h4>
-                <div className="flex space-x-2">
+                <div className="flex space-x-1.5 sm:space-x-2">
                   <button
                     onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                    className="text-blue-400 hover:text-blue-300 transition-colors"
+                    className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 rounded-lg flex items-center justify-center text-blue-400 hover:text-blue-300 transition-all duration-200 hover:scale-105 border border-blue-500/30"
                   >
-                    {expandedIndex === index ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    {expandedIndex === index ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
                   </button>
                   <button
                     onClick={() => removeExperience(index)}
-                    className="text-red-400 hover:text-red-300 transition-colors"
+                    className="w-8 h-8 bg-gradient-to-r from-red-500/20 to-pink-500/20 hover:from-red-500/30 hover:to-pink-500/30 rounded-lg flex items-center justify-center text-red-400 hover:text-red-300 transition-all duration-200 hover:scale-105 border border-red-500/30"
                   >
-                    <Trash2 size={16} />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 </div>
               </div>

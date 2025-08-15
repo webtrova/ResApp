@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import Notification from '@/components/ui/Notification';
+import Navigation from '@/components/ui/Navigation';
 
 export default function Register() {
-  const { register, user } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -15,145 +16,121 @@ export default function Register() {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [notification, setNotification] = useState<{
+    isVisible: boolean;
+    type: 'success' | 'error' | 'info' | 'warning';
+    title: string;
+    message?: string;
+  }>({
+    isVisible: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
+
   const router = useRouter();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      // Check if there's a redirect URL stored (like from upload page)
-      const redirectUrl = localStorage.getItem('redirectAfterLogin');
-      if (redirectUrl) {
-        localStorage.removeItem('redirectAfterLogin');
-        router.push(redirectUrl);
-      } else {
-        router.push('/builder');
-      }
-    }
-  }, [user, router]);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value
-    }));
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    // Validate passwords match
+    
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setIsLoading(false);
+      setNotification({
+        isVisible: true,
+        type: 'error',
+        title: 'Passwords Don\'t Match',
+        message: 'Please make sure your passwords match.'
+      });
       return;
     }
 
-    // Validate password strength
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      setIsLoading(false);
-      return;
-    }
+    setIsLoading(true);
 
     try {
-      const success = await register(
-        formData.firstName,
-        formData.lastName,
-        formData.email,
-        formData.password
-      );
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password
+        }),
+      });
 
-      if (success) {
-        // Redirect to login page
-        router.push('/login?registered=true');
+      const data = await response.json();
+
+      if (data.success) {
+        // Auto-login after successful registration
+        const loginSuccess = await login(formData.email, formData.password);
+        
+        if (loginSuccess) {
+          setNotification({
+            isVisible: true,
+            type: 'success',
+            title: 'Account Created Successfully!',
+            message: 'Welcome to resApp! Redirecting to dashboard...'
+          });
+          setTimeout(() => {
+            router.push('/dashboard');
+          }, 1500);
+        } else {
+          setNotification({
+            isVisible: true,
+            type: 'success',
+            title: 'Account Created Successfully!',
+            message: 'Account created! Please log in with your credentials.'
+          });
+        }
       } else {
-        setError('Registration failed. Please try again.');
+        setNotification({
+          isVisible: true,
+          type: 'error',
+          title: 'Registration Failed',
+          message: data.error || 'Failed to create account'
+        });
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setError('Registration failed. Please try again.');
+      setNotification({
+        isVisible: true,
+        type: 'error',
+        title: 'Registration Failed',
+        message: 'An error occurred. Please try again.'
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div 
-          className="absolute w-96 h-96 bg-gradient-to-r from-green-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse"
-          style={{
-            left: `${mousePosition.x * 0.1}px`,
-            top: `${mousePosition.y * 0.1}px`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-        <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-r from-purple-400/20 to-pink-500/20 rounded-full blur-3xl animate-bounce" style={{ animationDuration: '6s' }} />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-      </div>
-
-      {/* Header */}
-      <header className="relative bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 overflow-hidden animate-pulse">
-                <img 
-                  src="/logo.png" 
-                  alt="ResumeStudio Logo" 
-                  className="w-full h-full object-cover brightness-0 invert"
-                />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  ResumeStudio
-                </h1>
-                <span className="text-sm text-gray-400">AI-Powered Resume Builder</span>
-              </div>
-            </Link>
-            <Link 
-              href="/login" 
-              className="text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
-            >
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 text-white">
+      {/* Navigation */}
+      <Navigation currentPage="register" />
 
       {/* Main Content */}
-      <main className="relative flex items-center justify-center min-h-screen py-12">
+      <main className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
-          <div className="bg-gray-800/50 backdrop-blur-xl rounded-3xl border border-gray-700/50 p-8 shadow-2xl">
+          {/* Registration Form Card */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
-              <p className="text-gray-400">Join ResumeStudio and start building your professional resume</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+              <p className="text-secondary-300">Join resApp and build your perfect resume</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="firstName" className="block text-sm font-medium text-secondary-300 mb-2">
                     First Name
                   </label>
                   <input
@@ -163,12 +140,12 @@ export default function Register() {
                     value={formData.firstName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
-                    placeholder="First name"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+                    placeholder="John"
                   />
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="lastName" className="block text-sm font-medium text-secondary-300 mb-2">
                     Last Name
                   </label>
                   <input
@@ -178,14 +155,14 @@ export default function Register() {
                     value={formData.lastName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
-                    placeholder="Last name"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+                    placeholder="Doe"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-secondary-300 mb-2">
                   Email Address
                 </label>
                 <input
@@ -195,13 +172,13 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
-                  placeholder="Enter your email"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+                  placeholder="john@example.com"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-secondary-300 mb-2">
                   Password
                 </label>
                 <input
@@ -211,14 +188,14 @@ export default function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                  minLength={6}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
                   placeholder="Create a password"
                 />
-                <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters long</p>
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-secondary-300 mb-2">
                   Confirm Password
                 </label>
                 <input
@@ -228,7 +205,8 @@ export default function Register() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                  minLength={6}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
                   placeholder="Confirm your password"
                 />
               </div>
@@ -236,25 +214,18 @@ export default function Register() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/40 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 px-6 rounded-xl font-medium transition-all duration-300 shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/40 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                    Creating Account...
-                  </div>
-                ) : (
-                  'Create Account'
-                )}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-gray-400">
+              <p className="text-secondary-300">
                 Already have an account?{' '}
                 <Link 
                   href="/login" 
-                  className="text-green-400 hover:text-green-300 transition-colors duration-300 font-medium"
+                  className="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-300"
                 >
                   Sign in here
                 </Link>
@@ -263,6 +234,17 @@ export default function Register() {
           </div>
         </div>
       </main>
+
+      {/* Notification */}
+      {notification.isVisible && (
+        <Notification
+          isVisible={notification.isVisible}
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={() => setNotification({ ...notification, isVisible: false })}
+        />
+      )}
     </div>
   );
 }

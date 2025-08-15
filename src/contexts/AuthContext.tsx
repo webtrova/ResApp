@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -63,12 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user);
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        // Keep loading for a moment to smooth the transition
+        setTimeout(() => setIsLoading(false), 500);
         return true;
       } else {
+        setIsLoading(false);
         return false;
       }
     } catch (error) {
       console.error('Login error:', error);
+      setIsLoading(false);
       return false;
     }
   };
@@ -120,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Prevent hydration mismatch by not rendering until client-side
   if (!isClient) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (

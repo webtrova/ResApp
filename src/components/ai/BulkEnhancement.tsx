@@ -139,12 +139,12 @@ export default function BulkEnhancement({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white">{title}</h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-secondary-400">
               Enhance {items.length} items with AI-powered Harvard methodology
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function BulkEnhancement({
           <motion.button
             onClick={startBulkEnhancement}
             disabled={isEnhancing || items.length === 0}
-            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 disabled:opacity-50"
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg hover:from-primary-600 hover:to-accent-600 transition-all duration-300 disabled:opacity-50 shadow-lg shadow-primary-500/25"
             whileHover={{ scale: isEnhancing ? 1 : 1.05 }}
             whileTap={{ scale: isEnhancing ? 1 : 0.95 }}
           >
@@ -170,16 +170,16 @@ export default function BulkEnhancement({
 
       {/* Progress Indicator */}
       {isEnhancing && (
-        <div className="bg-gray-800/50 rounded-lg p-4">
+        <div className="bg-secondary-800/50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-300">Enhancing items...</span>
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-secondary-300">Enhancing items...</span>
+            <span className="text-sm text-secondary-400">
               {enhancementItems.filter(item => item.status === 'enhanced').length} / {items.length}
             </span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-secondary-700 rounded-full h-2">
             <motion.div
-              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+              className="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full"
               initial={{ width: 0 }}
               animate={{ 
                 width: `${(enhancementItems.filter(item => item.status === 'enhanced').length / items.length) * 100}%` 
@@ -200,13 +200,13 @@ export default function BulkEnhancement({
             className="space-y-4"
           >
             {/* Stats */}
-            <div className="bg-gray-800/50 rounded-lg p-4">
+            <div className="bg-secondary-800/50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-white font-semibold">Enhancement Results</h4>
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center space-x-1">
-                    <Target className="w-4 h-4 text-green-400" />
-                    <span className="text-green-400">{getEnhancementStats().enhanced} enhanced</span>
+                    <Target className="w-4 h-4 text-primary-400" />
+                    <span className="text-primary-400">{getEnhancementStats().enhanced} enhanced</span>
                   </div>
                   {getEnhancementStats().errors > 0 && (
                     <div className="flex items-center space-x-1">
@@ -220,11 +220,11 @@ export default function BulkEnhancement({
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleSelectAll}
-                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                  className="text-sm text-accent-400 hover:text-accent-300 transition-colors"
                 >
                   {selectedItems.size === enhancementItems.length ? 'Deselect All' : 'Select All'}
                 </button>
-                <span className="text-gray-400 text-sm">
+                <span className="text-secondary-400 text-sm">
                   ({selectedItems.size} selected)
                 </span>
               </div>
@@ -238,10 +238,10 @@ export default function BulkEnhancement({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`bg-gray-800/50 rounded-lg p-4 border transition-all duration-200 ${
+                  className={`bg-secondary-800/50 rounded-lg p-4 border transition-all duration-200 ${
                     selectedItems.has(index) 
-                      ? 'border-purple-500/50 bg-purple-500/10' 
-                      : 'border-gray-700/50 hover:border-gray-600/50'
+                      ? 'border-primary-500/50 bg-primary-500/10' 
+                      : 'border-secondary-700/50 hover:border-secondary-600/50'
                   }`}
                 >
                   <div className="flex items-start space-x-3">
@@ -249,25 +249,25 @@ export default function BulkEnhancement({
                       type="checkbox"
                       checked={selectedItems.has(index)}
                       onChange={() => toggleItemSelection(index)}
-                      className="mt-1 w-4 h-4 text-purple-500 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
+                      className="mt-1 w-4 h-4 text-primary-500 bg-secondary-700 border-secondary-600 rounded focus:ring-primary-500 focus:ring-2"
                     />
                     
                     <div className="flex-1 space-y-3">
                       {/* Original */}
                       <div>
                         <div className="flex items-center space-x-2 mb-2">
-                          <span className="text-xs text-gray-400 font-medium">ORIGINAL</span>
+                          <span className="text-xs text-secondary-400 font-medium">ORIGINAL</span>
                           {item.status === 'enhancing' && (
                             <Wand2 className="w-3 h-3 text-yellow-400 animate-spin" />
                           )}
                           {item.status === 'enhanced' && (
-                            <Check className="w-3 h-3 text-green-400" />
+                            <Check className="w-3 h-3 text-primary-400" />
                           )}
                           {item.status === 'error' && (
                             <X className="w-3 h-3 text-red-400" />
                           )}
                         </div>
-                        <p className="text-gray-300 text-sm italic bg-gray-700/50 rounded p-2">
+                        <p className="text-secondary-300 text-sm italic bg-secondary-700/50 rounded p-2">
                           {item.original}
                         </p>
                       </div>
@@ -276,10 +276,10 @@ export default function BulkEnhancement({
                       {item.status === 'enhanced' && (
                         <div>
                           <div className="flex items-center space-x-2 mb-2">
-                            <span className="text-xs text-gray-400 font-medium">ENHANCED</span>
-                            <TrendingUp className="w-3 h-3 text-green-400" />
+                            <span className="text-xs text-secondary-400 font-medium">ENHANCED</span>
+                            <TrendingUp className="w-3 h-3 text-primary-400" />
                           </div>
-                          <p className="text-white text-sm bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded p-3 border border-purple-500/30">
+                          <p className="text-white text-sm bg-gradient-to-r from-primary-900/30 to-accent-900/30 rounded p-3 border border-primary-500/30">
                             {item.enhanced}
                           </p>
                         </div>
@@ -303,7 +303,7 @@ export default function BulkEnhancement({
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setShowResults(false)}
-                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-secondary-400 hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -311,7 +311,7 @@ export default function BulkEnhancement({
               <motion.button
                 onClick={handleAccept}
                 disabled={selectedItems.size === 0}
-                className="flex items-center space-x-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 disabled:opacity-50"
+                className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all duration-300 disabled:opacity-50 shadow-lg shadow-primary-500/25"
                 whileHover={{ scale: selectedItems.size > 0 ? 1.05 : 1 }}
                 whileTap={{ scale: selectedItems.size > 0 ? 0.95 : 1 }}
               >

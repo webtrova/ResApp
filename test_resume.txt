@@ -1,1 +1,55 @@
-Test resume content
+John Smith
+Software Engineer
+john.smith@email.com
+(555) 123-4567
+San Francisco, CA
+linkedin.com/in/johnsmith
+github.com/johnsmith
+
+PROFESSIONAL SUMMARY
+Experienced software engineer with 5 years of experience in full-stack development, specializing in React, Node.js, and cloud technologies. Passionate about creating scalable web applications and leading development teams.
+
+WORK EXPERIENCE
+
+Senior Software Engineer
+TechCorp Inc.
+January 2022 - Present
+• Led development of microservices architecture serving 100K+ users
+• Managed team of 8 developers and improved code quality by 40%
+• Implemented CI/CD pipeline reducing deployment time by 60%
+• Collaborated with product team to deliver features on time
+
+Software Developer
+StartupXYZ
+June 2020 - December 2021
+• Developed React frontend and Node.js backend for e-commerce platform
+• Integrated payment systems and achieved 99.9% uptime
+• Optimized database queries improving performance by 35%
+• Mentored junior developers and conducted code reviews
+
+Junior Developer
+WebSolutions
+January 2019 - May 2020
+• Built responsive web applications using HTML, CSS, JavaScript
+• Worked with REST APIs and implemented user authentication
+• Participated in agile development process
+• Fixed bugs and improved application stability
+
+EDUCATION
+
+Bachelor of Science in Computer Science
+University of California, Berkeley
+Graduated: May 2019
+GPA: 3.8/4.0
+
+SKILLS
+
+Technical Skills:
+JavaScript, TypeScript, React, Node.js, Python, SQL, AWS, Docker, Git, HTML, CSS, REST APIs, GraphQL, MongoDB, PostgreSQL
+
+Soft Skills:
+Leadership, Team Management, Problem Solving, Communication, Agile Methodologies, Project Management
+
+CERTIFICATIONS
+AWS Certified Developer Associate
+Google Cloud Professional Developer

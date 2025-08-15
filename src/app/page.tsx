@@ -3,12 +3,25 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import Notification from '@/components/ui/Notification';
+import Navigation from '@/components/ui/Navigation';
 
 export default function Home() {
   const { user, logout } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [notification, setNotification] = useState<{
+    isVisible: boolean;
+    type: 'success' | 'error' | 'info' | 'warning';
+    title: string;
+    message?: string;
+  }>({
+    isVisible: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -48,12 +61,22 @@ export default function Home() {
           window.location.href = `/builder?${params.toString()}`;
         }, 1500);
       } else {
-        alert(result.error || 'Failed to upload resume');
+        setNotification({
+          isVisible: true,
+          type: 'error',
+          title: 'Upload Failed',
+          message: result.error || 'Failed to upload resume'
+        });
         setIsUploading(false);
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload resume. Please try again.');
+      setNotification({
+        isVisible: true,
+        type: 'error',
+        title: 'Upload Failed',
+        message: 'Failed to upload resume. Please try again.'
+      });
       setIsUploading(false);
     }
   };
@@ -74,62 +97,8 @@ export default function Home() {
         <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-accent-400/20 to-primary-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
       </div>
 
-      {/* Header */}
-      <header className="relative bg-secondary-800/50 backdrop-blur-xl border-b border-secondary-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-24 h-14 rounded-xl flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/logo_white.png" 
-                  alt="resApp Logo" 
-                  className="w-36 h-36 object-contain"
-                />
-              </div>
-              <div>
-               
-                <span className="text-sm text-secondary-400">AI-Powered Resume Builder</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <span className="text-gray-300">
-                    Welcome, {user.firstName}!
-                  </span>
-                                     <Link 
-                     href="/dashboard" 
-                     className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 font-medium shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/40 hover:scale-105 transform"
-                   >
-                     My Dashboard
-                   </Link>
-                  <button
-                    onClick={logout}
-                    className="text-secondary-300 hover:text-white transition-all duration-300 hover:scale-105"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link 
-                    href="/login" 
-                    className="text-secondary-300 hover:text-white transition-all duration-300 hover:scale-105"
-                  >
-                    Sign In
-                  </Link>
-                  <Link 
-                    href={user ? "/builder" : "/login"} 
-                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 font-medium shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/40 hover:scale-105 transform"
-                  >
-                    {user ? "My Resumes" : "Get Started"}
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <Navigation currentPage="home" />
 
       {/* Main Content */}
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -148,34 +117,35 @@ export default function Home() {
           </div>
           
           <p className="text-xl md:text-2xl text-secondary-300 max-w-4xl mx-auto mb-16 leading-relaxed">
-            Upload your existing resume or start from scratch. Our AI transforms your everyday descriptions 
-            into <span className="text-primary-400 font-semibold">Harvard methodology-compliant</span> professional content that gets you noticed.
+            Follow our <span className="text-primary-400 font-semibold">Harvard template guide</span> through 6 intuitive steps. 
+            Our AI transforms your everyday descriptions into <span className="text-accent-400 font-semibold">professional excellence</span> 
+            with real-time preview as you build.
           </p>
           
           {/* Success Metrics Cards */}
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-20">
             <div className="group bg-secondary-800/50 backdrop-blur-xl rounded-2xl p-8 border border-secondary-700/50 hover:border-primary-500/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-primary-500/10">
-              <div className="text-4xl font-bold text-primary-400 mb-3 group-hover:scale-110 transition-transform duration-300">95%</div>
-              <div className="text-secondary-400 font-medium">Success Rate</div>
+              <div className="text-4xl font-bold text-primary-400 mb-3 group-hover:scale-110 transition-transform duration-300">6 Steps</div>
+              <div className="text-secondary-400 font-medium">Intuitive Process</div>
               <div className="w-full bg-secondary-700 rounded-full h-1 mt-4">
-                <div className="bg-gradient-to-r from-primary-400 to-primary-600 h-1 rounded-full animate-pulse" style={{ width: '95%' }}></div>
+                <div className="bg-gradient-to-r from-primary-400 to-primary-600 h-1 rounded-full animate-pulse" style={{ width: '100%' }}></div>
               </div>
             </div>
             
             <div className="group bg-secondary-800/50 backdrop-blur-xl rounded-2xl p-8 border border-secondary-700/50 hover:border-accent-500/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-accent-500/10">
-              <div className="text-4xl font-bold text-accent-400 mb-3 group-hover:scale-110 transition-transform duration-300">&lt;30 min</div>
-              <div className="text-secondary-400 font-medium">Time to Complete</div>
+              <div className="text-4xl font-bold text-accent-400 mb-3 group-hover:scale-110 transition-transform duration-300">Harvard</div>
+              <div className="text-secondary-400 font-medium">Template Guide</div>
               <div className="w-full bg-secondary-700 rounded-full h-1 mt-4">
-                <div className="bg-gradient-to-r from-accent-400 to-accent-600 h-1 rounded-full animate-pulse" style={{ width: '85%' }}></div>
+                <div className="bg-gradient-to-r from-accent-400 to-accent-600 h-1 rounded-full animate-pulse" style={{ width: '100%' }}></div>
               </div>
             </div>
             
             <div className="group bg-secondary-800/50 backdrop-blur-xl rounded-2xl p-8 border border-secondary-700/50 hover:border-primary-500/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-primary-500/10">
-              <div className="text-4xl font-bold text-primary-400 mb-3 group-hover:scale-110 transition-transform duration-300">4.8/5</div>
-              <div className="text-secondary-400 font-medium">User Rating</div>
+              <div className="text-4xl font-bold text-primary-400 mb-3 group-hover:scale-110 transition-transform duration-300">Live</div>
+              <div className="text-secondary-400 font-medium">Real-time Preview</div>
               <div className="flex justify-center mt-4 space-x-1">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className={`w-3 h-3 rounded-full ${i < 4 ? 'bg-primary-400' : 'bg-secondary-600'}`}></div>
+                  <div key={i} className={`w-3 h-3 rounded-full ${i < 5 ? 'bg-primary-400' : 'bg-secondary-600'}`}></div>
                 ))}
               </div>
             </div>
@@ -391,10 +361,11 @@ export default function Home() {
                 />
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-secondary-300 bg-clip-text text-transparent">
-                  resApp
-                </h3>
-                <p className="text-secondary-400 text-sm">AI-Powered Resume Builder</p>
+              <img 
+                  src="/logo_letter.png" 
+                  alt="resApp Logo_letter" 
+                  className="w-32 h-12 object-contain"
+                />
               </div>
             </div>
             <p className="text-secondary-300 text-lg max-w-2xl mx-auto mb-8">
@@ -438,7 +409,7 @@ export default function Home() {
           <div className="border-t border-secondary-700/50 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 mb-4 md:mb-0">
-                <span className="text-secondary-400 text-sm">© 2024 resApp. All rights reserved.</span>
+                <span className="text-secondary-400 text-sm">© 2025 resApp. All rights reserved.</span>
                 <div className="flex space-x-4">
                   <Link href="#" className="text-secondary-400 hover:text-primary-400 transition-colors duration-300 text-sm">
                     Privacy Policy
@@ -460,6 +431,15 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Notification */}
+      <Notification
+        isVisible={notification.isVisible}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification(prev => ({ ...prev, isVisible: false }))}
+      />
     </div>
   );
 }

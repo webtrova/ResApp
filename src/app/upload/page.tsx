@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import Navigation from '@/components/ui/Navigation';
 
 export default function Upload() {
   const { user } = useAuth();
@@ -104,62 +105,27 @@ export default function Upload() {
   // Don't show loading screen anymore - let users interact with upload even without auth
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 text-white relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div 
-          className="absolute w-96 h-96 bg-gradient-to-r from-blue-400/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse"
+          className="absolute w-96 h-96 bg-gradient-to-r from-primary-400/20 to-accent-500/20 rounded-full blur-3xl animate-pulse"
           style={{
             left: `${mousePosition.x * 0.1}px`,
             top: `${mousePosition.y * 0.1}px`,
             transform: 'translate(-50%, -50%)',
           }}
         />
-        <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-r from-purple-400/20 to-pink-500/20 rounded-full blur-3xl animate-bounce" style={{ animationDuration: '6s' }} />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-r from-primary-400/20 to-accent-500/20 rounded-full blur-3xl animate-bounce" style={{ animationDuration: '6s' }} />
+        <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-accent-400/20 to-primary-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
       </div>
 
-      {/* Header */}
-      <header className="relative bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/dashboard" className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 overflow-hidden animate-pulse">
-                <img 
-                  src="/logo.png" 
-                  alt="ResApp Logo" 
-                  className="w-full h-full object-cover brightness-0 invert"
-                />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  ResumeStudio
-                </h1>
-                <span className="text-sm text-gray-400">AI-Powered Resume Builder</span>
-              </div>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/dashboard" 
-                className="text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/builder" 
-                className="text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
-              >
-                Builder
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation currentPage="upload" />
 
       {/* Main Content */}
       <main className="relative flex items-center justify-center min-h-screen py-12">
         <div className="w-full max-w-2xl px-4">
-          <div className="bg-gray-800/50 backdrop-blur-xl rounded-3xl border border-gray-700/50 p-8 shadow-2xl">
+                      <div className="bg-secondary-800/50 backdrop-blur-xl rounded-3xl border border-secondary-700/50 p-8 shadow-2xl">
             <div className="text-center mb-8">
               <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,7 +133,7 @@ export default function Upload() {
                 </svg>
               </div>
               <h2 className="text-3xl font-bold text-white mb-4">Upload Your Resume</h2>
-              <p className="text-gray-400">Upload your existing resume and let our AI enhance it with professional formatting and improved content.</p>
+              <p className="text-secondary-400">Upload your existing resume and let our AI enhance it with professional formatting and improved content.</p>
             </div>
 
             {error && (
@@ -209,13 +175,13 @@ export default function Upload() {
                       </button>
                       <button
                         onClick={handleAuthPromptSignup}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 font-medium"
+                        className="px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors duration-300 font-medium"
                       >
                         Create Account
                       </button>
                       <button
                         onClick={() => setShowAuthPrompt(false)}
-                        className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors duration-300 font-medium"
+                        className="px-4 py-2 bg-secondary-700 text-secondary-300 rounded-lg hover:bg-secondary-600 transition-colors duration-300 font-medium"
                       >
                         Cancel
                       </button>

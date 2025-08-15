@@ -1,146 +1,88 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import Notification from '@/components/ui/Notification';
+import Navigation from '@/components/ui/Navigation';
 
 export default function Login() {
-  const { login, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [notification, setNotification] = useState<{
+    isVisible: boolean;
+    type: 'success' | 'error' | 'info' | 'warning';
+    title: string;
+    message?: string;
+  }>({
+    isVisible: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
+
   const router = useRouter();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      // Check if there's a redirect URL stored
-      const redirectUrl = localStorage.getItem('redirectAfterLogin');
-      if (redirectUrl) {
-        localStorage.removeItem('redirectAfterLogin');
-        router.push(redirectUrl);
-      } else {
-        router.push('/dashboard');
-      }
-    }
-  }, [user, router]);
-
-  // Check for registration success message and file upload intent
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('registered') === 'true') {
-      setSuccess('Account created successfully! Please sign in.');
-    }
-    
-    // Check if user came from upload page
-    const pendingUpload = localStorage.getItem('pendingFileUpload');
-    const redirectUrl = localStorage.getItem('redirectAfterLogin');
-    if (pendingUpload && redirectUrl === '/upload') {
-      setSuccess('Please sign in to upload and process your resume.');
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
 
     try {
-      const success = await login(email, password);
+      const loginSuccess = await login(email, password);
       
-      if (!success) {
-        setError('Invalid email or password');
+      if (loginSuccess) {
+        setNotification({
+          isVisible: true,
+          type: 'success',
+          title: 'Login Successful',
+          message: 'Welcome back! Redirecting to dashboard...'
+        });
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1200);
+      } else {
+        setNotification({
+          isVisible: true,
+          type: 'error',
+          title: 'Login Failed',
+          message: 'Invalid email or password. Please try again.'
+        });
       }
-      // The redirect will be handled by the useEffect that watches for user changes
     } catch (error) {
       console.error('Login error:', error);
-      setError('Login failed. Please try again.');
+      setNotification({
+        isVisible: true,
+        type: 'error',
+        title: 'Login Failed',
+        message: 'An error occurred. Please try again.'
+      });
     } finally {
-      setIsLoading(false);
+      // Don't set loading to false here - let AuthContext handle it
+      // This prevents the jarring jump during login transition
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div 
-          className="absolute w-96 h-96 bg-gradient-to-r from-green-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse"
-          style={{
-            left: `${mousePosition.x * 0.1}px`,
-            top: `${mousePosition.y * 0.1}px`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-        <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-r from-purple-400/20 to-pink-500/20 rounded-full blur-3xl animate-bounce" style={{ animationDuration: '6s' }} />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-      </div>
-
-      {/* Header */}
-      <header className="relative bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 overflow-hidden animate-pulse">
-                <img 
-                  src="/logo.png" 
-                  alt="ResumeStudio Logo" 
-                  className="w-full h-full object-cover brightness-0 invert"
-                />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  ResumeStudio
-                </h1>
-                <span className="text-sm text-gray-400">AI-Powered Resume Builder</span>
-              </div>
-            </Link>
-            <Link 
-              href="/register" 
-              className="text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
-            >
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 text-white">
+      {/* Navigation */}
+      <Navigation currentPage="login" />
 
       {/* Main Content */}
-      <main className="relative flex items-center justify-center min-h-screen py-12">
+      <main className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
-          <div className="bg-gray-800/50 backdrop-blur-xl rounded-3xl border border-gray-700/50 p-8 shadow-2xl">
+          {/* Login Form Card */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-              <p className="text-gray-400">Sign in to continue building your resume</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+              <p className="text-secondary-300">Sign in to your resApp account</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-              {success && (
-                <div className="bg-green-500/20 border border-green-500/50 rounded-xl p-4 text-green-400 text-sm">
-                  {success}
-                </div>
-              )}
-
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-secondary-300 mb-2">
                   Email Address
                 </label>
                 <input
@@ -149,13 +91,13 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter your email"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-secondary-300 mb-2">
                   Password
                 </label>
                 <input
@@ -164,33 +106,39 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter your password"
                 />
+              </div>
+
+              {/* Forgot Password Link */}
+              <div className="text-right">
+                <Link 
+                  href="/forgot-password" 
+                  className="text-sm text-primary-400 hover:text-primary-300 transition-colors duration-300"
+                >
+                  Forgot password?
+                </Link>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/40 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 px-6 rounded-xl font-medium transition-all duration-300 shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/40 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                    Signing In...
-                  </div>
-                ) : (
-                  'Sign In'
+                {isLoading && (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 )}
+                <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
               </button>
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-gray-400">
-                Don&apos;t have an account?{' '}
+              <p className="text-secondary-300">
+                Don't have an account?{' '}
                 <Link 
                   href="/register" 
-                  className="text-green-400 hover:text-green-300 transition-colors duration-300 font-medium"
+                  className="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-300"
                 >
                   Sign up here
                 </Link>
@@ -199,6 +147,17 @@ export default function Login() {
           </div>
         </div>
       </main>
+
+      {/* Notification */}
+      {notification.isVisible && (
+        <Notification
+          isVisible={notification.isVisible}
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={() => setNotification({ ...notification, isVisible: false })}
+        />
+      )}
     </div>
   );
 }

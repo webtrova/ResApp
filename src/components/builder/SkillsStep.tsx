@@ -15,10 +15,42 @@ interface SkillsStepProps {
 }
 
 const skillCategories = [
-  { id: 'technical', name: 'Technical Skills', icon: '💻', color: 'from-blue-500 to-cyan-500' },
-  { id: 'soft', name: 'Soft Skills', icon: '🤝', color: 'from-purple-500 to-pink-500' },
-  { id: 'languages', name: 'Languages', icon: '🌍', color: 'from-green-500 to-emerald-500' },
-  { id: 'tools', name: 'Tools & Software', icon: '🔧', color: 'from-orange-500 to-red-500' }
+  {
+    id: 'technical',
+    name: 'Technical Skills',
+    color: 'from-blue-500 to-cyan-500',
+    icon: (
+      <div className="w-5 h-5 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center shadow-sm">
+        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+        </svg>
+      </div>
+    )
+  },
+  {
+    id: 'soft',
+    name: 'Soft Skills',
+    color: 'from-green-500 to-emerald-500',
+    icon: (
+      <div className="w-5 h-5 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-sm">
+        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+        </svg>
+      </div>
+    )
+  },
+  {
+    id: 'other',
+    name: 'Other Skills',
+    color: 'from-purple-500 to-pink-500',
+    icon: (
+      <div className="w-5 h-5 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
+        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        </svg>
+      </div>
+    )
+  }
 ];
 
 const suggestionsByCategory = {
@@ -131,7 +163,7 @@ export default function SkillsStep({
           <motion.button
             key={category.id}
             onClick={() => setActiveCategory(category.id)}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+            className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-300 ${
               activeCategory === category.id
                 ? `bg-gradient-to-r ${category.color} text-white shadow-lg`
                 : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
@@ -139,7 +171,7 @@ export default function SkillsStep({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span>{category.icon}</span>
+            {category.icon}
             <span className="font-medium">{category.name}</span>
             <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
               {getSkillsByCategory(category.id).length}
