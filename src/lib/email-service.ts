@@ -56,16 +56,25 @@ export async function sendPasswordResetEmail(
       };
     }
 
-    const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
+    // Ensure appUrl has proper protocol and doesn't have trailing slash
+    let cleanAppUrl = appUrl.replace(/\/$/, '');
+    
+    // Add https:// if no protocol is specified
+    if (!cleanAppUrl.startsWith('http://') && !cleanAppUrl.startsWith('https://')) {
+      cleanAppUrl = `https://${cleanAppUrl}`;
+    }
+    
+    const resetUrl = `${cleanAppUrl}/reset-password?token=${resetToken}`;
     
     console.log('=== EMAIL SERVICE DEBUG ===');
+    console.log('Original appUrl:', appUrl);
+    console.log('Clean appUrl:', cleanAppUrl);
     console.log('Generated reset URL:', resetUrl);
-    console.log('Full appUrl:', appUrl);
     console.log('Reset token:', resetToken);
     console.log('Environment variables:', {
       gmailUser: !!gmailUser,
       gmailPassword: !!gmailPassword,
-      appUrl: appUrl
+      appUrl: cleanAppUrl
     });
     console.log('=== END EMAIL SERVICE DEBUG ===');
 
@@ -161,7 +170,7 @@ export async function sendPasswordResetEmail(
         <body>
           <div class="container">
             <div class="header">
-              <img src="${appUrl}/logo_white.png" alt="resApp Logo" class="logo">
+              <img src="${cleanAppUrl}/logo_white.png" alt="resApp Logo" class="logo">
               <h1 class="title">Reset Your Password</h1>
               <p class="subtitle">Hello ${userName}, we received a request to reset your password.</p>
             </div>
