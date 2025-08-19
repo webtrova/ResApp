@@ -115,4 +115,60 @@ export interface Template {
   created_at: Date;
 }
 
+// Cover Letter Types
+export interface CoverLetter {
+  id: number;
+  user_id: number;
+  resume_id?: number;
+  title: string;
+  cover_letter_data: CoverLetterData;
+  is_complete: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CoverLetterData {
+  jobDetails: JobDetails;
+  personalInfo: PersonalInfo;
+  opening: string;
+  body: CoverLetterBody[];
+  closing: string;
+  signature: string;
+}
+
+export interface JobDetails {
+  companyName: string;
+  jobTitle: string;
+  jobDescription?: string;
+  requirements?: string[];
+  applicationDate?: string;
+  contactPerson?: string;
+  contactEmail?: string;
+  companyAddress?: string;
+}
+
+export interface CoverLetterBody {
+  id: string;
+  type: 'experience' | 'skills' | 'achievement' | 'motivation' | 'custom';
+  content: string;
+  order: number;
+}
+
+export interface CoverLetterTemplate {
+  id: number;
+  name: string;
+  description: string;
+  template_data: any;
+  is_active: boolean;
+  created_at: Date;
+}
+
+export interface CoverLetterGenerationRequest {
+  resumeData: ResumeData;
+  jobDetails: JobDetails;
+  tone?: 'professional' | 'enthusiastic' | 'confident' | 'formal';
+  focus?: 'experience' | 'skills' | 'achievements' | 'motivation' | 'balanced';
+  length?: 'brief' | 'standard' | 'detailed';
+}
+
 

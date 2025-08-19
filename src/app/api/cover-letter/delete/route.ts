@@ -17,43 +17,43 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
     }
 
-    const { resumeId } = await request.json();
+    const { coverLetterId } = await request.json();
 
-    if (!resumeId) {
+    if (!coverLetterId) {
       return NextResponse.json(
-        { error: 'Resume ID is required' },
+        { error: 'Cover letter ID is required' },
         { status: 400 }
       );
     }
 
-    // Verify the resume belongs to the authenticated user
-    const resumeCheck = await executeQuery(
-      'SELECT id FROM resumes WHERE id = ? AND user_id = ?',
-      [resumeId, user.userId]
+    // Verify the cover letter belongs to the authenticated user
+    const coverLetterCheck = await executeQuery(
+      'SELECT id FROM cover_letters WHERE id = ? AND user_id = ?',
+      [coverLetterId, user.userId]
     ) as any[];
 
-    if (resumeCheck.length === 0) {
+    if (coverLetterCheck.length === 0) {
       return NextResponse.json(
-        { error: 'Resume not found or access denied' },
+        { error: 'Cover letter not found or access denied' },
         { status: 404 }
       );
     }
 
-    // Delete the resume
+    // Delete the cover letter
     await executeQuery(
-      'DELETE FROM resumes WHERE id = ? AND user_id = ?',
-      [resumeId, user.userId]
+      'DELETE FROM cover_letters WHERE id = ? AND user_id = ?',
+      [coverLetterId, user.userId]
     );
 
     return NextResponse.json({
       success: true,
-      message: 'Resume deleted successfully'
+      message: 'Cover letter deleted successfully'
     });
 
   } catch (error) {
-    console.error('Error deleting resume:', error);
+    console.error('Error deleting cover letter:', error);
     return NextResponse.json(
-      { error: 'Failed to delete resume' },
+      { error: 'Failed to delete cover letter' },
       { status: 500 }
     );
   }

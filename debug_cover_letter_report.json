@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-08-19T20:39:23.337Z",
+  "baseUrl": "http://localhost:3000",
+  "results": [
+    {
+      "timestamp": "2025-08-19T20:39:21.965Z",
+      "type": "TEST",
+      "message": "Testing server health..."
+    },
+    {
+      "timestamp": "2025-08-19T20:39:22.622Z",
+      "type": "SUCCESS",
+      "message": "✅ Server is running and responsive"
+    },
+    {
+      "timestamp": "2025-08-19T20:39:22.623Z",
+      "type": "TEST",
+      "message": "Testing database connection..."
+    },
+    {
+      "timestamp": "2025-08-19T20:39:22.903Z",
+      "type": "WARNING",
+      "message": "⚠️  Database might have issues (status: 405)"
+    },
+    {
+      "timestamp": "2025-08-19T20:39:22.903Z",
+      "type": "TEST",
+      "message": "Testing complete cover letter workflow..."
+    },
+    {
+      "timestamp": "2025-08-19T20:39:22.903Z",
+      "type": "TEST",
+      "message": "Testing resume loading endpoint..."
+    },
+    {
+      "timestamp": "2025-08-19T20:39:23.036Z",
+      "type": "DEBUG",
+      "message": "Resume endpoint status: 400"
+    },
+    {
+      "timestamp": "2025-08-19T20:39:23.036Z",
+      "type": "DEBUG",
+      "message": "Response data: {\n  \"error\": \"Either userId or resumeId is required\"\n}"
+    },
+    {
+      "timestamp": "2025-08-19T20:39:23.036Z",
+      "type": "ERROR",
+      "message": "❌ Resume loading failed with status 400"
+    },
+    {
+      "timestamp": "2025-08-19T20:39:23.036Z",
+      "type": "TEST",
+      "message": "Testing cover letter generation endpoint..."
+    },
+    {
+      "timestamp": "2025-08-19T20:39:23.337Z",
+      "type": "DEBUG",
+      "message": "Cover letter generation status: 401"
+    },
+    {
+      "timestamp": "2025-08-19T20:39:23.337Z",
+      "type": "ERROR",
+      "message": "❌ Authentication required for cover letter generation"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "errors": 2,
+    "warnings": 1,
+    "successes": 1
+  }
+}

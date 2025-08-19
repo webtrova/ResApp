@@ -225,16 +225,24 @@ export default function ResumeBuilder() {
     
     try {
       // First save the current resume data
-      const saveResult = await saveResume();
+      const saveResult = await saveResume(`${resumeData.personal.fullName || 'My'} Resume`);
       if (!saveResult.success) {
         setNotification({
           isVisible: true,
           type: 'error',
           title: 'Save Failed',
-          message: 'Failed to save resume before generating. Please try again.'
+          message: `Failed to save resume before generating: ${saveResult.error || 'Unknown error'}. Please try again.`
         });
         return;
       }
+
+      // Show success message for saving
+      setNotification({
+        isVisible: true,
+        type: 'success',
+        title: 'Resume Saved!',
+        message: `Your resume has been saved and is available for cover letter generation.`
+      });
 
       // Generate the document
       const response = await fetch('/api/resume/generate', {
@@ -263,9 +271,18 @@ export default function ResumeBuilder() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      // Show success message
+      // Show success message with cover letter link
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setNotification({
+        isVisible: true,
+        type: 'success',
+        title: 'Resume Generated Successfully!',
+        message: 'Your resume has been downloaded. Now you can create a cover letter using your resume data.'
+      });
+      setTimeout(() => {
+        setShowSuccess(false);
+        setNotification(prev => ({ ...prev, isVisible: false }));
+      }, 5000);
       
     } catch (error) {
       console.error('Error generating resume:', error);
@@ -318,12 +335,21 @@ export default function ResumeBuilder() {
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
-          className="fixed top-4 right-4 z-50 bg-primary-500 text-white px-6 py-4 rounded-xl shadow-lg"
+          className="fixed top-4 right-4 z-50 bg-primary-500 text-white px-6 py-4 rounded-xl shadow-lg max-w-sm"
         >
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 mb-2">
             <span className="text-xl">✅</span>
             <span className="font-semibold">Resume generated successfully!</span>
           </div>
+          <div className="text-sm text-primary-100 mb-3">
+            Your resume has been saved and downloaded.
+          </div>
+          <Link 
+            href="/cover-letter-builder"
+            className="inline-block bg-white text-primary-600 px-3 py-1 rounded-lg text-sm font-medium hover:bg-primary-50 transition-colors"
+          >
+            Create Cover Letter →
+          </Link>
         </motion.div>
       )}
 

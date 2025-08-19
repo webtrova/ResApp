@@ -24,6 +24,20 @@ CREATE TABLE resumes (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Cover Letters table
+CREATE TABLE cover_letters (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  resume_id INT,
+  title VARCHAR(255) NOT NULL,
+  cover_letter_data JSON NOT NULL,
+  is_complete BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE SET NULL
+);
+
 -- Language transformations (for learning and improvement)
 CREATE TABLE transformations (
   id INT PRIMARY KEY AUTO_INCREMENT,

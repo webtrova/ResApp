@@ -1,0 +1,61 @@
+{
+  "personal": {
+    "fullName": "John Doe",
+    "email": "john.doe@email.com",
+    "phone": "(555) 123-4567",
+    "location": "San Francisco, CA"
+  },
+  "summary": {
+    "content": "Experienced software engineer with 5+ years in full-stack development.",
+    "currentTitle": "Senior Software Engineer",
+    "yearsExperience": 5,
+    "keySkills": ["JavaScript", "React", "Node.js", "Python", "Full-Stack Development"]
+  },
+  "experience": [
+    {
+      "id": "1",
+      "company": "Tech Corp",
+      "position": "Senior Software Engineer",
+      "startDate": "2020-01",
+      "endDate": "2024-01",
+      "description": "Led development of microservices architecture, improved system performance by 40%.",
+      "responsibilities": [
+        "Developed scalable web applications using React and Node.js",
+        "Mentored junior developers and conducted code reviews",
+        "Implemented CI/CD pipelines reducing deployment time by 60%"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "1",
+      "institution": "University of California",
+      "degree": "Bachelor of Science in Computer Science",
+      "startDate": "2016-09",
+      "endDate": "2020-05",
+      "gpa": "3.8"
+    }
+  ],
+  "skills": [
+    {
+      "id": "1",
+      "name": "JavaScript",
+      "category": "Programming"
+    },
+    {
+      "id": "2",
+      "name": "React",
+      "category": "Frontend"
+    },
+    {
+      "id": "3",
+      "name": "Node.js",
+      "category": "Backend"
+    },
+    {
+      "id": "4",
+      "name": "Python",
+      "category": "Programming"
+    }
+  ]
+}

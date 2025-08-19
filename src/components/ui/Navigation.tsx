@@ -111,6 +111,16 @@ export default function Navigation({
                 >
                   Upload
                 </Link>
+                <Link 
+                  href="/cover-letter-builder" 
+                  className={`text-sm font-medium transition-colors duration-300 ${
+                    currentPage === 'cover-letter-builder' 
+                      ? 'text-primary-400' 
+                      : 'text-secondary-300 hover:text-white'
+                  }`}
+                >
+                  Cover Letters
+                </Link>
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
                     <div className="text-secondary-300 text-sm">Welcome, {user.firstName}!</div>
@@ -223,6 +233,18 @@ export default function Navigation({
                 >
                   <div className="w-2 h-2 bg-current rounded-full mr-3 group-hover:scale-125 transition-transform duration-300"></div>
                   <span className="font-medium">Upload</span>
+                </Link>
+                <Link 
+                  href="/cover-letter-builder" 
+                  className={`flex items-center px-4 py-3 rounded-xl transition-all duration-300 group ${
+                    currentPage === 'cover-letter-builder' 
+                      ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' 
+                      : 'text-secondary-300 hover:text-white hover:bg-white/10'
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="w-2 h-2 bg-current rounded-full mr-3 group-hover:scale-125 transition-transform duration-300"></div>
+                  <span className="font-medium">Cover Letters</span>
                 </Link>
                 <div className="pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between px-4 py-3">

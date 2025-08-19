@@ -1,0 +1,12 @@
+{
+  "companyName": "Google",
+  "jobTitle": "Senior Software Engineer",
+  "jobDescription": "We are looking for a senior software engineer to join our team and work on large-scale distributed systems.",
+  "requirements": [
+    "5+ years of software development experience",
+    "Experience with distributed systems",
+    "Strong problem-solving skills"
+  ],
+  "contactPerson": "Jane Smith",
+  "contactEmail": "jane.smith@google.com"
+}

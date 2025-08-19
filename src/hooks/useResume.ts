@@ -96,11 +96,18 @@ export function useResume({ userId, resumeId, initialData }: UseResumeProps): Us
         ? { resumeId: currentResumeId, resumeData, title }
         : { userId, resumeData, title };
 
+      const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(body)
       });
 
