@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CoverLetterData } from '../../types/resume';
-import AIEnhanceButton from '../ai/AIEnhanceButton';
+import EnhancedAIButton from '../ai/EnhancedAIButton';
 
 interface CoverLetterFormProps {
   coverLetterData: CoverLetterData;
@@ -91,6 +91,17 @@ export default function CoverLetterForm({ coverLetterData, onUpdate, onSave }: C
               </div>
             )}
           </button>
+          <button
+            onClick={() => window.location.href = '/send-application'}
+            className="px-6 py-3 text-sm bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 transform hover:scale-105"
+          >
+            <div className="flex items-center">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Send Application
+            </div>
+          </button>
         </div>
       </div>
 
@@ -153,7 +164,7 @@ export default function CoverLetterForm({ coverLetterData, onUpdate, onSave }: C
                   placeholder={`Write your ${paragraph.type} paragraph...`}
                 />
                 <div className="absolute top-3 right-3">
-                  <AIEnhanceButton
+                  <EnhancedAIButton
                     text={paragraph.content}
                     onAccept={(enhanced) => handleBodyChange(index, enhanced)}
                     context={{
@@ -161,6 +172,8 @@ export default function CoverLetterForm({ coverLetterData, onUpdate, onSave }: C
                       jobTitle: coverLetterData.jobDetails.jobTitle,
                       companyName: coverLetterData.jobDetails.companyName
                     }}
+                    size="sm"
+                    showDetails={true}
                   />
                 </div>
               </div>

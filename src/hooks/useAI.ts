@@ -21,84 +21,39 @@ export function useAI() {
   const enhanceText = async (text: string, context: any = {}): Promise<string | null> => {
     setIsEnhancing(true);
     try {
-      // First try the rule-based enhancer (no API key needed)
-      const ruleBasedResponse = await fetch('/api/ai/enhance-rule-based', {
+      // Use the new keyword bank enhancement system
+      const response = await fetch('/api/enhance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text, context }),
-      });
-
-      if (ruleBasedResponse.ok) {
-        const data: AIEnhancementResponse = await ruleBasedResponse.json();
-        if (data.success) {
-          console.log('Using rule-based enhancement');
-          return data.enhanced;
-        }
-      }
-
-      // If rule-based fails, try the AI API (if available)
-      const response = await fetch('/api/ai/enhance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text, context }),
+        body: JSON.stringify({ 
+          text, 
+          industry: context.industry || context.jobTitle?.toLowerCase().includes('plumb') ? 'plumbing' :
+                   context.jobTitle?.toLowerCase().includes('hvac') ? 'hvac' :
+                   context.jobTitle?.toLowerCase().includes('electric') ? 'electrical' :
+                   context.jobTitle?.toLowerCase().includes('tech') || context.jobTitle?.toLowerCase().includes('software') ? 'technology' :
+                   context.jobTitle?.toLowerCase().includes('sales') ? 'sales' :
+                   context.jobTitle?.toLowerCase().includes('health') || context.jobTitle?.toLowerCase().includes('nurse') ? 'healthcare' :
+                   context.jobTitle?.toLowerCase().includes('finance') || context.jobTitle?.toLowerCase().includes('account') ? 'finance' :
+                   'general',
+          level: context.experienceLevel || context.level || 'entry'
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('AI Enhancement API Error:', errorData);
-        
-        // Try fallback enhancement for insufficient balance
-        if (response.status === 402) {
-          console.log('Trying fallback enhancement...');
-          return await tryFallbackEnhancement(text, context);
-        } else if (response.status === 401) {
-          console.log('AI service not available, using rule-based enhancement');
-          // Fall back to rule-based enhancement
-          const fallbackResponse = await fetch('/api/ai/enhance-rule-based', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text, context }),
-          });
-          
-          if (fallbackResponse.ok) {
-            const fallbackData = await fallbackResponse.json();
-            if (fallbackData.success) {
-              return fallbackData.enhanced;
-            }
-          }
-        } else {
-          console.log('AI enhancement failed, using rule-based enhancement');
-          // Fall back to rule-based enhancement
-          const fallbackResponse = await fetch('/api/ai/enhance-rule-based', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text, context }),
-          });
-          
-          if (fallbackResponse.ok) {
-            const fallbackData = await fallbackResponse.json();
-            if (fallbackData.success) {
-              return fallbackData.enhanced;
-            }
-          }
-        }
+        console.error('Enhancement API Error:', errorData);
         return null;
       }
 
-      const data: AIEnhancementResponse = await response.json();
+      const data = await response.json();
 
       if (data.success) {
+        console.log('Keyword bank enhancement successful');
         return data.enhanced;
       } else {
-        console.error('AI Enhancement failed:', data);
+        console.error('Enhancement failed:', data);
         return null;
       }
     } catch (error) {

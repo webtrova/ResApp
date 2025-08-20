@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 
 interface NotificationProps {
   isVisible: boolean;
@@ -29,6 +30,28 @@ export default function Notification({
       return () => clearTimeout(timer);
     }
   }, [isVisible, duration, onClose]);
+
+  // Scroll to top when notification becomes visible
+  useEffect(() => {
+    if (isVisible) {
+      console.log('Notification visible, scrolling to top...');
+      // Use a small delay to ensure the notification is rendered
+      setTimeout(() => {
+        // Try multiple scroll methods for better compatibility
+        try {
+          // Force scroll to top with multiple methods
+          window.scrollTo(0, 0);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+          console.log('Scroll to top executed');
+        } catch (error) {
+          console.log('Fallback scroll method');
+          document.body.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [isVisible]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -115,17 +138,21 @@ export default function Notification({
 
   const styles = getTypeStyles();
 
-  return (
+  // Use portal to render notification directly to document body
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return createPortal(
     <AnimatePresence>
       {isVisible && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[99999]" onClick={onClose}>
-          <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[999999] flex items-center justify-center p-4" onClick={onClose}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-secondary-800/95 backdrop-blur-xl rounded-3xl border border-secondary-700/50 shadow-2xl max-w-md w-full mx-4"
+              className="bg-secondary-800/95 backdrop-blur-xl rounded-3xl border border-secondary-700/50 shadow-2xl max-w-md w-full mx-4 relative"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -163,9 +190,9 @@ export default function Notification({
                 </div>
               </div>
             </motion.div>
-          </div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

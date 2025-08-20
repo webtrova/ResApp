@@ -52,6 +52,7 @@ export interface WorkExperience {
   location?: string;
   jobDescription: string;
   achievements: string[];
+  isCurrentPosition?: boolean;
 }
 
 export interface Education {

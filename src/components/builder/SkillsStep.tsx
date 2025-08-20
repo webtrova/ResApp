@@ -56,6 +56,7 @@ const skillCategories = [
 const suggestionsByCategory = {
   technical: ['JavaScript', 'Python', 'React', 'Node.js', 'HTML/CSS', 'SQL', 'Git', 'AWS', 'Docker', 'TypeScript'],
   soft: ['Leadership', 'Communication', 'Problem Solving', 'Teamwork', 'Time Management', 'Adaptability', 'Critical Thinking', 'Creativity'],
+  other: ['Microsoft Office', 'Adobe Creative Suite', 'Slack', 'Jira', 'Figma', 'Salesforce', 'Google Analytics', 'Zoom', 'Project Management', 'Customer Service'],
   languages: ['English', 'Spanish', 'French', 'German', 'Mandarin', 'Portuguese', 'Italian', 'Japanese'],
   tools: ['Microsoft Office', 'Adobe Creative Suite', 'Slack', 'Jira', 'Figma', 'Salesforce', 'Google Analytics', 'Zoom']
 };
@@ -133,8 +134,9 @@ export default function SkillsStep({
 
   const getAvailableSuggestions = (category: string) => {
     const existingSkills = resumeData.skills.map(s => s.name.toLowerCase());
-    return suggestionsByCategory[category as keyof typeof suggestionsByCategory]
-      .filter(suggestion => !existingSkills.includes(suggestion.toLowerCase()));
+    const categorySuggestions = suggestionsByCategory[category as keyof typeof suggestionsByCategory];
+    if (!categorySuggestions) return [];
+    return categorySuggestions.filter(suggestion => !existingSkills.includes(suggestion.toLowerCase()));
   };
 
   return (

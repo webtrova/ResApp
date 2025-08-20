@@ -286,6 +286,47 @@ ${content.signature || ''}
     }
   };
 
+  const downloadCoverLetter = async (coverLetter: CoverLetter) => {
+    try {
+      const response = await fetch('/api/cover-letter/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ coverLetterData: coverLetter.cover_letter_data }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${coverLetter.title}_${new Date().toISOString().split('T')[0]}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        setNotification({
+          isVisible: true,
+          type: 'success',
+          title: 'Download Started',
+          message: 'Cover letter download has started.'
+        });
+      } else {
+        throw new Error('Failed to download cover letter');
+      }
+    } catch (error) {
+      console.error('Error downloading cover letter:', error);
+      setNotification({
+        isVisible: true,
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download cover letter. Please try again.'
+      });
+    }
+  };
+
   const deleteResume = async (resumeId: number) => {
     setConfirmAction({
       isVisible: true,
@@ -378,7 +419,7 @@ ${content.signature || ''}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {/* Upload Resume Card */}
             <div className="group relative">
               <div className="absolute inset-0 bg-gradient-to-r from-accent-500/20 to-primary-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
@@ -466,6 +507,34 @@ ${content.signature || ''}
                   </p>
                   <div className="inline-flex items-center text-green-400 group-hover:text-green-300 transition-colors duration-300">
                     <span className="font-medium">Create Cover Letter</span>
+                    <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Send Application Card */}
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+              <Link 
+                href="/send-application"
+                className="relative block bg-secondary-800/50 backdrop-blur-xl rounded-3xl border border-secondary-700/50 p-8 shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 hover:scale-105 group"
+              >
+                <div className="text-center">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/25 group-hover:shadow-xl group-hover:shadow-purple-500/40 transition-all duration-500 group-hover:rotate-12 group-hover:scale-110">
+                    <svg className="w-11 h-11 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4">Send Application</h3>
+                  <p className="text-secondary-400 mb-6 leading-relaxed">
+                    Select your resume and cover letter, then send them via email to potential employers with professional formatting.
+                  </p>
+                  <div className="inline-flex items-center text-purple-400 group-hover:text-purple-300 transition-colors duration-300">
+                    <span className="font-medium">Send Application</span>
                     <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -681,6 +750,17 @@ ${content.signature || ''}
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
                                     View
+                                  </span>
+                                </button>
+                                <button
+                                  onClick={() => downloadCoverLetter(coverLetter)}
+                                  className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 text-center border border-blue-500/30 hover:scale-105 group/download"
+                                >
+                                  <span className="flex items-center justify-center gap-1.5">
+                                    <svg className="w-4 h-4 group-hover/download:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Download
                                   </span>
                                 </button>
                                 <button

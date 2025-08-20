@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ResumeData, WorkExperience } from '@/types/resume';
 import { useState } from 'react';
 import { Briefcase, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
-import AIEnhanceButton from '@/components/ai/AIEnhanceButton';
+import EnhancedAIButton from '@/components/ai/EnhancedAIButton';
 
 interface ExperienceStepProps {
   resumeData: ResumeData;
@@ -189,11 +189,11 @@ export default function ExperienceStep({
                           Start Date
                         </label>
                         <input
-                          type="text"
+                          type="month"
                           value={exp.startDate}
                           onChange={(e) => updateExperience(index, 'startDate', e.target.value)}
                           className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
-                          placeholder="MM/YYYY"
+                          placeholder="YYYY-MM"
                         />
                       </div>
                       <div>
@@ -201,12 +201,29 @@ export default function ExperienceStep({
                           End Date
                         </label>
                         <input
-                          type="text"
+                          type="month"
                           value={exp.endDate || ''}
                           onChange={(e) => updateExperience(index, 'endDate', e.target.value)}
-                          className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
-                          placeholder="MM/YYYY or Present"
+                          disabled={exp.isCurrentPosition}
+                          className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          placeholder="YYYY-MM"
                         />
+                        <div className="mt-2">
+                          <label className="flex items-center text-sm text-gray-300">
+                            <input
+                              type="checkbox"
+                              checked={exp.isCurrentPosition || false}
+                              onChange={(e) => {
+                                updateExperience(index, 'isCurrentPosition', e.target.checked);
+                                if (e.target.checked) {
+                                  updateExperience(index, 'endDate', '');
+                                }
+                              }}
+                              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-600 bg-gray-700 rounded"
+                            />
+                            <span className="ml-2">Current position</span>
+                          </label>
+                        </div>
                       </div>
                     </div>
 
@@ -215,7 +232,7 @@ export default function ExperienceStep({
                         <label className="block text-sm font-semibold text-gray-300">
                           Job Description
                         </label>
-                        <AIEnhanceButton
+                        <EnhancedAIButton
                           text={exp.jobDescription}
                           onAccept={(enhancedText) => updateExperience(index, 'jobDescription', enhancedText)}
                           context={{
@@ -224,6 +241,7 @@ export default function ExperienceStep({
                             type: 'job_description'
                           }}
                           size="sm"
+                          showDetails={true}
                           disabled={!exp.jobDescription.trim()}
                         />
                       </div>
@@ -257,7 +275,7 @@ export default function ExperienceStep({
                                   Achievement {achIndex + 1}
                                 </span>
                                 <div className="flex items-center space-x-2">
-                                  <AIEnhanceButton
+                                  <EnhancedAIButton
                                     text={achievement}
                                     onAccept={(enhancedText) => updateAchievement(index, achIndex, enhancedText)}
                                     context={{
@@ -266,6 +284,7 @@ export default function ExperienceStep({
                                       type: 'achievement'
                                     }}
                                     size="sm"
+                                    showDetails={true}
                                     disabled={!achievement.trim()}
                                   />
                                   {exp.achievements.length > 1 && (

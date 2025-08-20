@@ -6,10 +6,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Briefcase, Settings, Eye, Mail, Sparkles } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Navigation from '../../components/ui/Navigation';
-import CoverLetterForm from '../../components/cover-letter/CoverLetterForm';
-import CoverLetterPreview from '../../components/cover-letter/CoverLetterPreview';
-import JobDetailsForm from '../../components/cover-letter/JobDetailsForm';
-import CoverLetterOptions from '../../components/cover-letter/CoverLetterOptions';
+import CoverLetterForm from '@/components/cover-letter/CoverLetterForm';
+import CoverLetterPreview from '@/components/cover-letter/CoverLetterPreview';
+import EmailSender from '@/components/email/EmailSender';
+import JobDetailsForm from '@/components/cover-letter/JobDetailsForm';
+import CoverLetterOptions from '@/components/cover-letter/CoverLetterOptions';
 import Notification from '../../components/ui/Notification';
 import { ResumeData, CoverLetterData, JobDetails } from '../../types/resume';
 
@@ -286,6 +287,13 @@ export default function CoverLetterBuilder() {
       subtitle: 'Edit and finalize',
       icon: Eye,
       component: CoverLetterForm
+    },
+    { 
+      id: 5, 
+      title: 'Send Application', 
+      subtitle: 'Download and email',
+      icon: Mail,
+      component: EmailSender
     }
   ];
 
@@ -432,6 +440,13 @@ export default function CoverLetterBuilder() {
                 </p>
               </div>
             )}
+            {currentStep === 5 && (
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-2 sm:p-3 max-w-2xl mx-auto">
+                <p className="text-blue-300 text-xs sm:text-sm">
+                  📧 <strong>Ready to send!</strong> Download your documents and send your application via email.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -568,6 +583,14 @@ export default function CoverLetterBuilder() {
                         coverLetterData={coverLetterData}
                         onUpdate={handleCoverLetterUpdate}
                         onSave={saveCoverLetter}
+                      />
+                    )}
+
+                    {currentStep === 5 && coverLetterData && resumeData && (
+                      <EmailSender
+                        resumeData={resumeData}
+                        coverLetterData={coverLetterData}
+                        jobDetails={jobDetails}
                       />
                     )}
                   </div>

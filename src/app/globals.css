@@ -25,6 +25,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  height: 100%;
 }
 
 body {
@@ -94,6 +96,26 @@ a {
 
 .card-glass {
   @apply bg-secondary-800/30 backdrop-blur-xl border border-secondary-700/30;
+}
+
+/* Global fixed positioning fix */
+.fixed {
+  position: fixed !important;
+  transform: translateZ(0);
+}
+
+/* Notification styles */
+.notification-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999 !important;
+  min-height: 100vh !important;
 }
 
 /* Enhanced input styles */
